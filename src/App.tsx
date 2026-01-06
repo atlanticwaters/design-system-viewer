@@ -13,6 +13,7 @@ import {
   Fills,
   Outlines,
   States,
+  Pairings,
 } from './components';
 import { semanticLight, semanticDark, colors } from './tokens/colors';
 import { typography } from './tokens/typography';
@@ -29,6 +30,7 @@ function App() {
     { id: 'colors', label: 'Colors' },
     { id: 'surfaces', label: 'Surfaces' },
     { id: 'fills', label: 'Fills' },
+    { id: 'pairings', label: 'Pairings' },
     { id: 'outlines', label: 'Outlines' },
     { id: 'states', label: 'States' },
     { id: 'typography', label: 'Typography' },
@@ -223,6 +225,7 @@ function App() {
         <ColorPalette semantic={semantic} isDarkMode={isDarkMode} />
         <Surfaces semantic={semantic} isDark={isDarkMode} />
         <Fills semantic={semantic} isDark={isDarkMode} />
+        <Pairings semantic={semantic} isDark={isDarkMode} />
         <Outlines semantic={semantic} isDark={isDarkMode} />
         <States semantic={semantic} isDark={isDarkMode} />
         <Typography semantic={semantic} />

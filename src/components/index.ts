@@ -11,3 +11,4 @@ export { Surfaces } from './Surfaces';
 export { Fills } from './Fills';
 export { Outlines } from './Outlines';
 export { States } from './States';
+export { Pairings } from './Pairings';
