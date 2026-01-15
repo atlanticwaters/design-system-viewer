@@ -19,10 +19,19 @@ import { semanticLight, semanticDark, colors } from './tokens/colors';
 import { typography } from './tokens/typography';
 import { spacing } from './tokens/spacing';
 import { borderRadius } from './tokens/radius';
+import { TokensStudioViewer } from './tokens-studio';
+
+type ViewerMode = 'hardcoded' | 'tokens-studio';
 
 function App() {
+  const [viewerMode, setViewerMode] = useState<ViewerMode>('tokens-studio');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeSection, setActiveSection] = useState('colors');
+
+  // Render Tokens Studio Viewer if in that mode
+  if (viewerMode === 'tokens-studio') {
+    return <TokensStudioViewer onBack={() => setViewerMode('hardcoded')} />;
+  }
 
   const semantic = isDarkMode ? semanticDark : semanticLight;
 
@@ -118,6 +127,27 @@ function App() {
                 Android 15
               </span>
             </div>
+
+            {/* Tokens Studio Viewer Toggle */}
+            <button
+              onClick={() => setViewerMode('tokens-studio')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                padding: `${spacing[2]}px ${spacing[3]}px`,
+                borderRadius: borderRadius.full,
+                backgroundColor: colors.brand['300'],
+                border: 'none',
+                cursor: 'pointer',
+                color: colors.neutrals.white,
+                fontSize: 14,
+                fontWeight: 500,
+              }}
+            >
+              <span>🎨</span>
+              Tokens Studio
+            </button>
 
             {/* Dark Mode Toggle */}
             <button
