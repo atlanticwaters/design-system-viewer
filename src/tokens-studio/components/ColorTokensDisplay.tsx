@@ -133,7 +133,15 @@ function CategorySection({ category, isDarkMode }: CategorySectionProps) {
     return tokens;
   };
 
-  const allTokens = getAllTokens(category);
+  // Get all tokens and sort by shade number for proper palette display
+  const allTokens = getAllTokens(category).sort((a, b) => {
+    // Extract numbers from token names (e.g., "brand-025" -> 25, "brand-950" -> 950)
+    const aMatch = a.name.match(/(\d+)$/);
+    const bMatch = b.name.match(/(\d+)$/);
+    const aNum = aMatch ? parseInt(aMatch[1]) : 0;
+    const bNum = bMatch ? parseInt(bMatch[1]) : 0;
+    return aNum - bNum;
+  });
 
   if (allTokens.length === 0) {
     return null;

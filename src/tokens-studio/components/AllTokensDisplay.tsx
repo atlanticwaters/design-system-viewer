@@ -216,15 +216,39 @@ function ColorPaletteSection({
   tokens: ResolvedToken[];
   isDarkMode: boolean;
 }) {
-  // Group colors by their category (first part of path)
+  // Group colors by their palette name
+  // Handles both legacy "Color/Default.palette.shade" and new "core/colors.color.palette.shade" paths
   const grouped = useMemo(() => {
     const groups: Record<string, ResolvedToken[]> = {};
     for (const token of tokens) {
       const parts = token.path.split('.');
-      const category = parts.length > 1 ? parts[1] : parts[0];
+      let category: string;
+
+      // Handle different path structures
+      if (token.path.includes('core/colors.color.') || token.path.includes('core/neutrals.color.')) {
+        // New structure: "core/colors.color.brand.brand-025" -> "brand"
+        category = parts.length > 2 ? parts[2] : parts[1];
+      } else {
+        // Legacy structure: "Color/Default.brand.brand-025" -> "brand"
+        category = parts.length > 1 ? parts[1] : parts[0];
+      }
+
       if (!groups[category]) groups[category] = [];
       groups[category].push(token);
     }
+
+    // Sort tokens within each group by shade number
+    for (const category of Object.keys(groups)) {
+      groups[category].sort((a, b) => {
+        // Extract numbers from token names (e.g., "brand-025" -> 25, "brand-950" -> 950)
+        const aMatch = a.name.match(/(\d+)$/);
+        const bMatch = b.name.match(/(\d+)$/);
+        const aNum = aMatch ? parseInt(aMatch[1]) : 0;
+        const bNum = bMatch ? parseInt(bMatch[1]) : 0;
+        return aNum - bNum;
+      });
+    }
+
     return groups;
   }, [tokens]);
 
@@ -338,7 +362,12 @@ export function AllTokensDisplay({ parsedTokens, isDarkMode }: AllTokensDisplayP
   ), 1);
 
   // Get core colors (not semantic/component tokens)
-  const coreColors = stats.colors.filter(t => t.path.includes('Color/Default'));
+  // Support both legacy "Color/Default" and new "core/colors" paths
+  const coreColors = stats.colors.filter(t =>
+    t.path.includes('Color/Default') ||
+    t.path.includes('core/colors') ||
+    t.path.includes('core/neutrals')
+  );
 
   // Get semantic token pairs for preview
   const semanticPairs = useMemo(() => {

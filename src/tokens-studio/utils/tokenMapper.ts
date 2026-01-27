@@ -99,7 +99,7 @@ function mapGroupToCategory(
 
 /**
  * Map Color/Default category to core palettes
- * Also checks "core/colors" path for Tokens Studio Sandbox format
+ * Also checks "core/colors" and "core/neutrals" paths for Tokens Studio Sandbox format
  */
 function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
   const palettes: TokenCategory[] = [];
@@ -122,18 +122,44 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
   }
 
   // Check Tokens Studio Sandbox "core/colors" path
+  // Structure: core/colors.color.{palette-name}
   const coreColors = tokens['core/colors'];
-  if (coreColors) {
-    for (const [paletteName, paletteValue] of Object.entries(coreColors)) {
-      if (isTokenGroup(paletteValue)) {
-        const category = mapGroupToCategory(
-          tokens,
-          paletteValue,
-          `core/colors.${paletteName}`,
-          paletteName,
-          formatLabel(paletteName)
-        );
-        palettes.push(category);
+  if (coreColors && isTokenGroup(coreColors)) {
+    const colorGroup = coreColors['color'];
+    if (colorGroup && isTokenGroup(colorGroup)) {
+      // Iterate over each palette (brand, bottle-green, etc.)
+      for (const [paletteName, paletteValue] of Object.entries(colorGroup)) {
+        if (isTokenGroup(paletteValue)) {
+          const category = mapGroupToCategory(
+            tokens,
+            paletteValue,
+            `core/colors.color.${paletteName}`,
+            paletteName,
+            formatLabel(paletteName)
+          );
+          palettes.push(category);
+        }
+      }
+    }
+  }
+
+  // Check Tokens Studio Sandbox "core/neutrals" path
+  // Structure: core/neutrals.color.{palette-name}
+  const coreNeutrals = tokens['core/neutrals'];
+  if (coreNeutrals && isTokenGroup(coreNeutrals)) {
+    const colorGroup = coreNeutrals['color'];
+    if (colorGroup && isTokenGroup(colorGroup)) {
+      for (const [paletteName, paletteValue] of Object.entries(colorGroup)) {
+        if (isTokenGroup(paletteValue)) {
+          const category = mapGroupToCategory(
+            tokens,
+            paletteValue,
+            `core/neutrals.color.${paletteName}`,
+            paletteName,
+            formatLabel(paletteName)
+          );
+          palettes.push(category);
+        }
       }
     }
   }
@@ -429,7 +455,7 @@ function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
  * Map Effects tokens
  * Checks multiple path patterns:
  * - "Effects/Mode 1" (legacy)
- * - "core/elevation" (Tokens Studio Sandbox)
+ * - "core/elevation.elevation" (Tokens Studio Sandbox)
  */
 function mapEffects(tokens: TokensStudioFile): TokenCategory {
   const resolvedTokens: ResolvedToken[] = [];
@@ -451,14 +477,26 @@ function mapEffects(tokens: TokensStudioFile): TokenCategory {
   }
 
   // Check Tokens Studio Sandbox "core/elevation" path
+  // Structure: core/elevation.elevation.{category}
   const coreElevation = tokens['core/elevation'];
   if (coreElevation && isTokenGroup(coreElevation)) {
-    const category = mapGroupToCategory(tokens, coreElevation, 'core/elevation', 'elevation', 'Elevation');
-    if (category.tokens.length > 0) {
-      resolvedTokens.push(...category.tokens);
-    }
-    if (category.subcategories) {
-      subcategories.push(...category.subcategories);
+    const elevationGroup = coreElevation['elevation'];
+    if (elevationGroup && isTokenGroup(elevationGroup)) {
+      // Iterate over each elevation category (shadow-blur, shadow-color, etc.)
+      for (const [categoryName, categoryValue] of Object.entries(elevationGroup)) {
+        if (isTokenGroup(categoryValue)) {
+          const category = mapGroupToCategory(
+            tokens,
+            categoryValue,
+            `core/elevation.elevation.${categoryName}`,
+            categoryName,
+            formatLabel(categoryName)
+          );
+          if (category.tokens.length > 0) {
+            subcategories.push(category);
+          }
+        }
+      }
     }
   }
 

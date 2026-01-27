@@ -60,6 +60,16 @@ function findTokenPath(
   token = getTokenAtPath(tokens, coreColorsPath);
   if (token) return coreColorsPath;
 
+  // Try with core/colors.color prefix (nested color structure)
+  const coreColorsColorPath = `core/colors.color.${referencePath}`;
+  token = getTokenAtPath(tokens, coreColorsColorPath);
+  if (token) return coreColorsColorPath;
+
+  // Try with core/neutrals.color prefix (neutral colors)
+  const coreNeutralsPath = `core/neutrals.color.${referencePath}`;
+  token = getTokenAtPath(tokens, coreNeutralsPath);
+  if (token) return coreNeutralsPath;
+
   // Try with core/spacing prefix (Tokens Studio Sandbox format)
   const coreSpacingPath = `core/spacing.${referencePath}`;
   token = getTokenAtPath(tokens, coreSpacingPath);
@@ -74,6 +84,11 @@ function findTokenPath(
   const coreElevationPath = `core/elevation.${referencePath}`;
   token = getTokenAtPath(tokens, coreElevationPath);
   if (token) return coreElevationPath;
+
+  // Try with core/elevation.elevation prefix (nested elevation structure)
+  const coreElevationNestedPath = `core/elevation.elevation.${referencePath}`;
+  token = getTokenAtPath(tokens, coreElevationNestedPath);
+  if (token) return coreElevationNestedPath;
 
   // Try with core typography prefixes (Tokens Studio Sandbox format)
   const typographyPrefixes = ['core/font-family', 'core/font-size', 'core/font-weight', 'core/letter-spacing', 'core/line-height'];

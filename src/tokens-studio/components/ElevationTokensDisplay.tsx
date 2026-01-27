@@ -132,7 +132,21 @@ function ElevationCard({ name, value, isDarkMode }: ElevationCardProps) {
   );
 }
 
+// Flatten tokens from category and subcategories
+function flattenEffectsCategory(category: TokenCategory): TokenCategory['tokens'] {
+  const tokens = [...category.tokens];
+  if (category.subcategories) {
+    for (const sub of category.subcategories) {
+      tokens.push(...flattenEffectsCategory(sub));
+    }
+  }
+  return tokens;
+}
+
 export function ElevationTokensDisplay({ effects, isDarkMode = false }: ElevationTokensDisplayProps) {
+  // Get all tokens including from subcategories
+  const allTokens = flattenEffectsCategory(effects);
+
   const sectionStyle: React.CSSProperties = {
     padding: 24,
   };
@@ -154,11 +168,22 @@ export function ElevationTokensDisplay({ effects, isDarkMode = false }: Elevatio
     marginBottom: 24,
   };
 
+  const subsectionTitleStyle: React.CSSProperties = {
+    fontSize: 18,
+    fontWeight: 600,
+    fontFamily: FONT_OPEN_SANS,
+    marginBottom: 16,
+    marginTop: 24,
+    color: isDarkMode ? '#fbfaf9' : '#252524',
+  };
+
   const gridStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
     gap: 16,
   };
+
+  const hasSubcategories = effects.subcategories && effects.subcategories.length > 0;
 
   return (
     <div style={sectionStyle}>
@@ -167,25 +192,63 @@ export function ElevationTokensDisplay({ effects, isDarkMode = false }: Elevatio
         Shadow and elevation tokens for depth and hierarchy. Click to copy values.
       </p>
 
-      <div style={gridStyle}>
-        {effects.tokens.map((token, index) => {
-          const value = String(token.value);
+      {/* Render direct tokens if any */}
+      {effects.tokens.length > 0 && (
+        <div style={gridStyle}>
+          {effects.tokens.map((token, index) => {
+            const value = String(token.value);
+            return (
+              <div
+                key={token.path}
+                className="animate-item"
+                style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+              >
+                <ElevationCard
+                  name={token.name}
+                  value={value}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-          return (
-            <div
-              key={token.path}
-              className="animate-item"
-              style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
-            >
-              <ElevationCard
-                name={token.name}
-                value={value}
-                isDarkMode={isDarkMode}
-              />
-            </div>
-          );
-        })}
-      </div>
+      {/* Render subcategories */}
+      {hasSubcategories && effects.subcategories!.map((subcategory) => (
+        <div key={subcategory.id}>
+          <h3 style={subsectionTitleStyle}>{subcategory.label}</h3>
+          <div style={gridStyle}>
+            {subcategory.tokens.map((token, index) => {
+              const value = String(token.value);
+              return (
+                <div
+                  key={token.path}
+                  className="animate-item"
+                  style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+                >
+                  <ElevationCard
+                    name={token.name}
+                    value={value}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Show message if no tokens found */}
+      {allTokens.length === 0 && (
+        <div style={{
+          padding: 48,
+          textAlign: 'center',
+          color: isDarkMode ? '#8b949e' : '#787675',
+        }}>
+          No elevation/effects tokens found.
+        </div>
+      )}
     </div>
   );
 }
