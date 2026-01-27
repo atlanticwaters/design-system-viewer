@@ -7,14 +7,60 @@ interface ComponentTokensDisplayProps {
   isDarkMode: boolean;
 }
 
-interface TokenCardProps {
+// Group tokens by their hierarchy path for better organization
+interface TokenGroup {
+  name: string;
+  tokens: ResolvedToken[];
+  subgroups: Map<string, TokenGroup>;
+}
+
+function buildTokenHierarchy(tokens: ResolvedToken[]): TokenGroup {
+  const root: TokenGroup = { name: 'root', tokens: [], subgroups: new Map() };
+
+  for (const token of tokens) {
+    // Parse the path to extract hierarchy levels
+    // e.g., "components/button.Button.icon.Ghost.Default" -> ["icon", "Ghost", "Default"]
+    const pathParts = token.path.split('.');
+    // Skip the first part (components/button) and second part (Button - component name)
+    const hierarchy = pathParts.slice(2);
+
+    if (hierarchy.length === 0) {
+      root.tokens.push(token);
+      continue;
+    }
+
+    // Navigate/create the hierarchy
+    let current = root;
+    for (let i = 0; i < hierarchy.length - 1; i++) {
+      const level = hierarchy[i];
+      if (!current.subgroups.has(level)) {
+        current.subgroups.set(level, { name: level, tokens: [], subgroups: new Map() });
+      }
+      current = current.subgroups.get(level)!;
+    }
+    current.tokens.push(token);
+  }
+
+  return root;
+}
+
+// Get state order for consistent display
+const STATE_ORDER = ['Default', 'Hover', 'Active', 'Active-Pressed', 'Focus', 'Success', 'Inactive', 'Disabled'];
+function getStateOrder(stateName: string): number {
+  const idx = STATE_ORDER.findIndex(s => stateName.toLowerCase().includes(s.toLowerCase()));
+  return idx >= 0 ? idx : 99;
+}
+
+interface StateSwatchProps {
   token: ResolvedToken;
   isDarkMode: boolean;
 }
 
-function TokenCard({ token, isDarkMode }: TokenCardProps) {
+function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   const [copied, setCopied] = useState(false);
   const value = String(token.value);
+  const isColor = token.type === 'color';
+  const stateName = token.name;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
@@ -22,57 +68,40 @@ function TokenCard({ token, isDarkMode }: TokenCardProps) {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const isColor = token.type === 'color';
-  const colorValue = isColor ? value : null;
-
-  const cardStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    boxShadow: isDarkMode
-      ? '0 1px 4px rgba(0,0,0,0.3)'
-      : '0 1px 4px rgba(0,0,0,0.08)',
+  const swatchStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 4,
     cursor: 'pointer',
-    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+    padding: 4,
+    borderRadius: 4,
+    transition: 'background-color 0.15s ease',
+    position: 'relative',
   };
 
-  const swatchStyle: React.CSSProperties = {
-    width: '100%',
-    height: 48,
-    backgroundColor: colorValue || (isDarkMode ? '#3a3a3a' : '#f0eeec'),
+  const colorBoxStyle: React.CSSProperties = {
+    width: 40,
+    height: 40,
+    borderRadius: 6,
+    backgroundColor: isColor ? value : (isDarkMode ? '#3a3a3a' : '#e5e1de'),
+    border: `1px solid ${isDarkMode ? '#4a4a4a' : '#d0d0d0'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    borderBottom: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+    fontSize: 9,
+    color: isDarkMode ? '#8b949e' : '#787675',
   };
 
-  const infoStyle: React.CSSProperties = {
-    padding: 10,
-  };
-
-  const nameStyle: React.CSSProperties = {
-    fontSize: 11,
-    fontWeight: 600,
-    fontFamily: FONT_OPEN_SANS,
-    color: isDarkMode ? '#fbfaf9' : '#252524',
-    marginBottom: 4,
-    wordBreak: 'break-word',
-  };
-
-  const valueStyle: React.CSSProperties = {
-    fontSize: 10,
-    fontFamily: "'Menlo', monospace",
-    color: isDarkMode ? '#bab7b4' : '#787675',
-    wordBreak: 'break-all',
-  };
-
-  const typeStyle: React.CSSProperties = {
+  const labelStyle: React.CSSProperties = {
     fontSize: 9,
     fontFamily: FONT_OPEN_SANS,
-    color: isDarkMode ? '#6a6a6a' : '#a0a0a0',
-    marginTop: 4,
-    textTransform: 'uppercase',
+    color: isDarkMode ? '#8b949e' : '#787675',
+    textAlign: 'center',
+    maxWidth: 48,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   };
 
   const copiedStyle: React.CSSProperties = {
@@ -80,58 +109,193 @@ function TokenCard({ token, isDarkMode }: TokenCardProps) {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     color: '#fff',
-    padding: '4px 8px',
-    borderRadius: 4,
-    fontSize: 10,
+    padding: '3px 6px',
+    borderRadius: 3,
+    fontSize: 9,
     fontFamily: FONT_OPEN_SANS,
+    zIndex: 10,
   };
-
-  // For non-color tokens, show value text in the swatch area
-  const nonColorDisplay = !isColor && (
-    <div style={{
-      fontSize: 12,
-      fontFamily: "'Menlo', monospace",
-      color: isDarkMode ? '#8b949e' : '#585756',
-      textAlign: 'center',
-      padding: 4,
-    }}>
-      {typeof token.value === 'number' ? token.value : value.slice(0, 20)}
-    </div>
-  );
 
   return (
     <div
-      style={cardStyle}
+      style={swatchStyle}
       onClick={handleCopy}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = isDarkMode
-          ? '0 4px 12px rgba(0,0,0,0.4)'
-          : '0 4px 12px rgba(0,0,0,0.12)';
+        e.currentTarget.style.backgroundColor = isDarkMode ? '#3a3a3a' : '#f0eeec';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = isDarkMode
-          ? '0 1px 4px rgba(0,0,0,0.3)'
-          : '0 1px 4px rgba(0,0,0,0.08)';
+        e.currentTarget.style.backgroundColor = 'transparent';
       }}
+      title={`${token.path}\n${value}`}
     >
-      <div style={swatchStyle}>
-        {copied && <div style={copiedStyle}>Copied!</div>}
-        {nonColorDisplay}
+      {copied && <div style={copiedStyle}>Copied!</div>}
+      <div style={colorBoxStyle}>
+        {!isColor && (typeof token.value === 'number' ? token.value : '...')}
       </div>
-      <div style={infoStyle}>
-        <div style={nameStyle}>{token.name}</div>
-        <div style={valueStyle}>{value}</div>
-        <div style={typeStyle}>{token.type}</div>
-        {token.isReference && (
-          <div style={{ ...valueStyle, fontSize: 9, marginTop: 4, opacity: 0.6 }}>
-            ← {token.referencePath}
+      <div style={labelStyle}>{stateName}</div>
+    </div>
+  );
+}
+
+interface VariantCardProps {
+  variantName: string;
+  tokens: ResolvedToken[];
+  isDarkMode: boolean;
+}
+
+function VariantCard({ variantName, tokens, isDarkMode }: VariantCardProps) {
+  // Sort tokens by state order
+  const sortedTokens = [...tokens].sort((a, b) => {
+    return getStateOrder(a.name) - getStateOrder(b.name);
+  });
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
+    borderRadius: 8,
+    padding: 12,
+    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+  };
+
+  const headerStyle: React.CSSProperties = {
+    fontSize: 12,
+    fontWeight: 600,
+    fontFamily: FONT_OPEN_SANS,
+    color: isDarkMode ? '#fbfaf9' : '#252524',
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottom: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+  };
+
+  const statesStyle: React.CSSProperties = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  };
+
+  return (
+    <div style={cardStyle}>
+      <div style={headerStyle}>{variantName}</div>
+      <div style={statesStyle}>
+        {sortedTokens.map(token => (
+          <StateSwatch key={token.path} token={token} isDarkMode={isDarkMode} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface TokenTypeSectionProps {
+  typeName: string;
+  group: TokenGroup;
+  isDarkMode: boolean;
+}
+
+function TokenTypeSection({ typeName, group, isDarkMode }: TokenTypeSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  // Count total tokens in this type
+  const countTokens = (g: TokenGroup): number => {
+    let count = g.tokens.length;
+    g.subgroups.forEach(sub => {
+      count += countTokens(sub);
+    });
+    return count;
+  };
+  const tokenCount = countTokens(group);
+
+  const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 12px',
+    backgroundColor: isDarkMode ? '#1a1a1a' : '#f0eeec',
+    borderRadius: 6,
+    cursor: 'pointer',
+    marginBottom: isExpanded ? 12 : 0,
+    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: FONT_OPEN_SANS,
+    color: isDarkMode ? '#fbfaf9' : '#252524',
+    flex: 1,
+  };
+
+  const countStyle: React.CSSProperties = {
+    fontSize: 10,
+    fontFamily: FONT_OPEN_SANS,
+    backgroundColor: isDarkMode ? '#3a3a3a' : '#e5e1de',
+    padding: '2px 6px',
+    borderRadius: 8,
+    color: isDarkMode ? '#bab7b4' : '#585756',
+  };
+
+  const chevronStyle: React.CSSProperties = {
+    fontSize: 12,
+    color: isDarkMode ? '#8b949e' : '#787675',
+    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+    transition: 'transform 0.2s ease',
+  };
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: 12,
+  };
+
+  // Format type name for display
+  const formatTypeName = (name: string) => {
+    return name
+      .replace(/-/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  };
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div
+        style={headerStyle}
+        onClick={() => setIsExpanded(!isExpanded)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = isDarkMode ? '#252525' : '#e8e5e2';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#f0eeec';
+        }}
+      >
+        <span style={chevronStyle}>▶</span>
+        <span style={titleStyle}>{formatTypeName(typeName)}</span>
+        <span style={countStyle}>{tokenCount}</span>
+      </div>
+      {isExpanded && (
+        <div style={{ paddingLeft: 12 }}>
+          {/* Direct tokens in this type */}
+          {group.tokens.length > 0 && (
+            <div style={{ ...gridStyle, marginBottom: 12 }}>
+              <VariantCard
+                variantName="General"
+                tokens={group.tokens}
+                isDarkMode={isDarkMode}
+              />
+            </div>
+          )}
+          {/* Variant subgroups */}
+          <div style={gridStyle}>
+            {Array.from(group.subgroups.entries()).map(([variantName, variantGroup]) => (
+              <VariantCard
+                key={variantName}
+                variantName={formatTypeName(variantName)}
+                tokens={variantGroup.tokens}
+                isDarkMode={isDarkMode}
+              />
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -158,6 +322,9 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
   const allTokens = useMemo(() => flattenCategory(category), [category]);
   const tokenCount = allTokens.length;
 
+  // Build hierarchical structure from tokens
+  const hierarchy = useMemo(() => buildTokenHierarchy(allTokens), [allTokens]);
+
   if (tokenCount === 0) {
     return null;
   }
@@ -166,9 +333,9 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 16px',
+    padding: '14px 18px',
     backgroundColor: isDarkMode ? '#1a1a1a' : '#f8f5f2',
-    borderRadius: 8,
+    borderRadius: 10,
     cursor: 'pointer',
     marginBottom: isExpanded ? 16 : 0,
     border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
@@ -176,13 +343,13 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   };
 
   const countStyle: React.CSSProperties = {
@@ -190,90 +357,23 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
     fontWeight: 400,
     fontFamily: FONT_OPEN_SANS,
     backgroundColor: isDarkMode ? '#3a3a3a' : '#e5e1de',
-    padding: '2px 8px',
-    borderRadius: 10,
+    padding: '3px 10px',
+    borderRadius: 12,
     color: isDarkMode ? '#bab7b4' : '#585756',
   };
 
   const chevronStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 16,
     color: isDarkMode ? '#8b949e' : '#787675',
     transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
     transition: 'transform 0.2s ease',
   };
 
-  const gridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-    gap: 12,
-  };
-
-  // Group tokens by subcategory for better organization
-  const renderTokens = () => {
-    if (category.subcategories && category.subcategories.length > 0) {
-      return (
-        <>
-          {category.tokens.length > 0 && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={gridStyle}>
-                {category.tokens.map((token, index) => (
-                  <div
-                    key={token.path}
-                    className="animate-item"
-                    style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
-                  >
-                    <TokenCard token={token} isDarkMode={isDarkMode} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {category.subcategories.map((sub) => (
-            <div key={sub.id} style={{ marginBottom: 20 }}>
-              <h4 style={{
-                fontSize: 13,
-                fontWeight: 600,
-                fontFamily: FONT_OPEN_SANS,
-                color: isDarkMode ? '#bab7b4' : '#585756',
-                marginBottom: 12,
-                paddingLeft: 4,
-              }}>
-                {sub.label}
-              </h4>
-              <div style={gridStyle}>
-                {flattenCategory(sub).map((token, index) => (
-                  <div
-                    key={token.path}
-                    className="animate-item"
-                    style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
-                  >
-                    <TokenCard token={token} isDarkMode={isDarkMode} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </>
-      );
-    }
-
-    return (
-      <div style={gridStyle}>
-        {allTokens.map((token, index) => (
-          <div
-            key={token.path}
-            className="animate-item"
-            style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
-          >
-            <TokenCard token={token} isDarkMode={isDarkMode} />
-          </div>
-        ))}
-      </div>
-    );
-  };
+  // Get token types (icon, text, background, etc.) - these are the first-level subgroups
+  const tokenTypes = Array.from(hierarchy.subgroups.entries());
 
   return (
-    <div style={{ marginBottom: 16 }} className="animate-section">
+    <div style={{ marginBottom: 20 }} className="animate-section">
       <div
         style={headerStyle}
         onClick={() => setIsExpanded(!isExpanded)}
@@ -289,10 +389,43 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
           {category.label}
           <span style={countStyle}>{tokenCount} tokens</span>
         </div>
+        {tokenTypes.length > 0 && (
+          <div style={{
+            fontSize: 11,
+            fontFamily: FONT_OPEN_SANS,
+            color: isDarkMode ? '#6a6a6a' : '#a0a0a0',
+          }}>
+            {tokenTypes.map(([name]) => name).join(' • ')}
+          </div>
+        )}
       </div>
       {isExpanded && (
-        <div style={{ paddingLeft: 8 }}>
-          {renderTokens()}
+        <div style={{ paddingLeft: 12 }}>
+          {/* Render token types (icon, text, background, etc.) */}
+          {tokenTypes.map(([typeName, typeGroup]) => (
+            <TokenTypeSection
+              key={typeName}
+              typeName={typeName}
+              group={typeGroup}
+              isDarkMode={isDarkMode}
+            />
+          ))}
+          {/* Direct tokens without type grouping */}
+          {hierarchy.tokens.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: 12,
+              }}>
+                <VariantCard
+                  variantName="Other"
+                  tokens={hierarchy.tokens}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -309,9 +442,7 @@ export function ComponentTokensDisplay({ components, isDarkMode }: ComponentToke
     }
     const term = searchTerm.toLowerCase();
     return components.filter(comp => {
-      // Check component name
       if (comp.label.toLowerCase().includes(term)) return true;
-      // Check token names within component
       const allTokens = flattenCategory(comp);
       return allTokens.some(t =>
         t.name.toLowerCase().includes(term) ||
@@ -394,7 +525,8 @@ export function ComponentTokensDisplay({ components, isDarkMode }: ComponentToke
     <div style={sectionStyle}>
       <h2 style={sectionTitleStyle}>Component Tokens</h2>
       <p style={descriptionStyle}>
-        Design tokens for UI components. Click any token to copy its value. Expand components to see their tokens.
+        Design tokens for UI components, organized by token type (icon, text, background) and variant.
+        Click any color swatch to copy its value.
       </p>
 
       {/* Stats */}
@@ -431,7 +563,7 @@ export function ComponentTokensDisplay({ components, isDarkMode }: ComponentToke
             key={component.id}
             category={component}
             isDarkMode={isDarkMode}
-            defaultExpanded={index === 0 && filteredComponents.length <= 5}
+            defaultExpanded={index === 0 && filteredComponents.length <= 3}
           />
         ))
       ) : (
