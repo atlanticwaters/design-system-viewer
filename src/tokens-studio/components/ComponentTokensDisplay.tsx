@@ -81,24 +81,25 @@ function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   };
 
   const colorBoxStyle: React.CSSProperties = {
-    width: 32,
-    height: 32,
-    borderRadius: 5,
+    width: 48,
+    height: 48,
+    borderRadius: 6,
     backgroundColor: isColor ? value : (isDarkMode ? '#3a3a3a' : '#e5e1de'),
     border: `1px solid ${isDarkMode ? '#4a4a4a' : '#d0d0d0'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 8,
+    fontSize: 11,
+    fontWeight: 500,
     color: isDarkMode ? '#8b949e' : '#787675',
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 7,
+    fontSize: 10,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#8b949e' : '#787675',
     textAlign: 'center',
-    maxWidth: 40,
+    maxWidth: 56,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -152,18 +153,18 @@ function VariantRow({ variantName, tokens, isDarkMode }: VariantRowProps) {
   });
 
   const rowStyle: React.CSSProperties = {
-    padding: '8px',
+    padding: '12px',
     backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
-    borderRadius: 6,
+    borderRadius: 8,
     border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#8b949e' : '#787675',
-    marginBottom: 6,
+    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: '0.3px',
   };
@@ -171,7 +172,7 @@ function VariantRow({ variantName, tokens, isDarkMode }: VariantRowProps) {
   const statesStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 2,
+    gap: 6,
   };
 
   // Format variant name
