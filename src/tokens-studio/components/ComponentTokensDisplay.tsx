@@ -152,15 +152,17 @@ function VariantRow({ variantName, tokens, isDarkMode }: VariantRowProps) {
   });
 
   const rowStyle: React.CSSProperties = {
-    padding: '6px 0',
-    borderBottom: `1px solid ${isDarkMode ? '#2a2a2a' : '#eeebe8'}`,
+    padding: '8px',
+    backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
+    borderRadius: 6,
+    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
-    color: isDarkMode ? '#bab7b4' : '#585756',
+    color: isDarkMode ? '#8b949e' : '#787675',
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: '0.3px',
@@ -250,13 +252,20 @@ function TokenTypeSection({ typeName, group, isDarkMode }: TokenTypeSectionProps
   const variants = Array.from(group.subgroups.entries());
   const hasDirectTokens = group.tokens.length > 0;
 
+  const variantsContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 12,
+    alignItems: 'flex-start',
+  };
+
   return (
     <div style={sectionStyle}>
       <div style={headerStyle}>
         {formatTypeName(typeName)}
         <span style={badgeStyle}>{countTokens(group)}</span>
       </div>
-      <div>
+      <div style={variantsContainerStyle}>
         {/* Direct tokens */}
         {hasDirectTokens && (
           <VariantRow
