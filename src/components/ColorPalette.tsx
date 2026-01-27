@@ -80,7 +80,10 @@ interface SemanticColorGridProps {
 }
 
 function SemanticColorGrid({ semantic, title }: SemanticColorGridProps) {
-  const entries = Object.entries(semantic);
+  // Filter to only flat string color values (exclude nested objects like icon, text, background, borderColors)
+  const entries = Object.entries(semantic).filter(
+    ([, value]) => typeof value === 'string'
+  ) as [string, string][];
 
   return (
     <div style={{ marginBottom: 32 }}>

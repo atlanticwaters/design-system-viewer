@@ -15,7 +15,6 @@ interface PairingHalfProps {
   backgroundColor: string;
   textColor: string;
   mode: 'Light' | 'Dark';
-  semantic: SemanticColors;
 }
 
 interface DualPairingCardProps {
@@ -60,7 +59,7 @@ function getRatingColors(rating: WcagRating) {
 }
 
 // Single half of the pairing card (light or dark)
-function PairingHalf({ backgroundColor, textColor, mode }: Omit<PairingHalfProps, 'semantic'>) {
+function PairingHalf({ backgroundColor, textColor, mode }: PairingHalfProps) {
   const ratio = getContrastRatio(textColor, backgroundColor);
   const rating = getWcagRating(ratio);
   const ratingColors = getRatingColors(rating);
@@ -175,7 +174,7 @@ function DualPairingCard({
             marginBottom: 2,
           }}
         >
-          <strong style={{ color: semantic.onSurface }}>Surface:</strong> {backgroundToken}
+          <strong style={{ color: semantic.onSurface }}>Background:</strong> {backgroundToken}
         </div>
         <div
           style={{
@@ -183,7 +182,7 @@ function DualPairingCard({
             color: semantic.onSurfaceSecondary,
           }}
         >
-          <strong style={{ color: semantic.onSurface }}>Text:</strong> {textToken}
+          <strong style={{ color: semantic.onSurface }}>Text/Icon:</strong> {textToken}
         </div>
       </div>
 
@@ -205,88 +204,59 @@ function DualPairingCard({
   );
 }
 
+// Section header component
+function SectionHeader({
+  title,
+  subtitle,
+  semantic
+}: {
+  title: string;
+  subtitle: string;
+  semantic: SemanticColors;
+}) {
+  return (
+    <h3
+      style={{
+        ...typography.h6,
+        color: semantic.onSurface,
+        marginBottom: spacing[4],
+      }}
+    >
+      {title}
+      <span
+        style={{
+          ...typography.bodySm,
+          fontWeight: 400,
+          marginLeft: spacing[2],
+          color: semantic.onSurfaceSecondary,
+        }}
+      >
+        ({subtitle})
+      </span>
+    </h3>
+  );
+}
+
+// Grid wrapper component
+function PairingGrid({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: spacing[4],
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function Pairings({ semantic }: PairingsProps) {
-  // Surface + Text pairings data (showing all surface types with all text levels)
-  const surfaceTextPairings = [
-    { surfaceToken: 'surface', textToken: 'onSurface' },
-    { surfaceToken: 'surface', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surface', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceContainerLowest', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceContainerLowest', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceContainerLowest', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceContainerLow', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceContainerLow', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceContainerLow', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceContainer', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceContainer', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceContainer', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceContainerHigh', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceContainerHigh', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceContainerHigh', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceContainerHighest', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceContainerHighest', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceContainerHighest', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceDim', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceDim', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceDim', textToken: 'onSurfaceTertiary' },
-    { surfaceToken: 'surfaceBright', textToken: 'onSurface' },
-    { surfaceToken: 'surfaceBright', textToken: 'onSurfaceSecondary' },
-    { surfaceToken: 'surfaceBright', textToken: 'onSurfaceTertiary' },
-  ];
-
-  // Inverse surface pairings (uses opposite mode's text colors)
-  const inverseSurfacePairings = [
-    { surfaceToken: 'surfaceInverse', textToken: 'onSurface (inv)' },
-    { surfaceToken: 'surfaceInverse', textToken: 'onSurfaceSecondary (inv)' },
-  ];
-
-  // Fill + onFill pairings
-  const fillPairings = [
-    { fillToken: 'primary', textToken: 'onPrimary' },
-    { fillToken: 'secondary', textToken: 'onSecondary' },
-    { fillToken: 'tertiary', textToken: 'onTertiary' },
-    { fillToken: 'neutral', textToken: 'onNeutral' },
-    { fillToken: 'inverse', textToken: 'onInverse' },
-    { fillToken: 'error', textToken: 'onError' },
-    { fillToken: 'success', textToken: 'onSuccess' },
-    { fillToken: 'warning', textToken: 'onWarning' },
-    { fillToken: 'info', textToken: 'onInfo' },
-  ];
-
-  // Semantic text on surface pairings
-  const semanticTextTokens = ['primary', 'secondary', 'error', 'success', 'warning', 'info'];
-
-  // Helper to get surface color
-  const getSurfaceColor = (token: string, isDark: boolean) => {
-    const surfaceMap = isDark ? surfacesDark : surfaces;
-    return surfaceMap[token as keyof typeof surfaceMap] || surfaceMap.surface;
-  };
-
-  // Helper to get text color
-  const getTextColor = (token: string, isDark: boolean) => {
-    const semanticMap = isDark ? semanticDark : semanticLight;
-    const tokenKey = token.replace(' (inv)', '') as keyof typeof semanticMap;
-
-    // Handle inverse surface text (use opposite mode)
-    if (token.includes('(inv)')) {
-      const oppositeMap = isDark ? semanticLight : semanticDark;
-      return oppositeMap[tokenKey as keyof typeof oppositeMap];
-    }
-
-    return semanticMap[tokenKey];
-  };
-
-  // Helper to get fill color
-  const getFillColor = (token: string, isDark: boolean) => {
-    const fillMap = isDark ? fillsDark : fills;
-    return fillMap[token as keyof typeof fillMap];
-  };
-
-  // Helper to get onFill color
-  const getOnFillColor = (token: string, isDark: boolean) => {
-    const onFillMap = isDark ? onFillDark : onFill;
-    return onFillMap[token as keyof typeof onFillMap];
-  };
+  const currentSurfaces = surfaces;
+  const currentSurfacesDark = surfacesDark;
+  const currentFills = fills;
+  const currentFillsDark = fillsDark;
 
   return (
     <section id="pairings" style={{ marginBottom: spacing[12] }}>
@@ -335,446 +305,554 @@ export function Pairings({ semantic }: PairingsProps) {
         </p>
       </div>
 
-      {/* Section 1: Text on Surfaces */}
+      {/* ===================================================================== */}
+      {/* SECTION: Icon on Surface Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Text on Surfaces
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (onSurface tokens)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {surfaceTextPairings.map((pairing) => (
-            <DualPairingCard
-              key={`${pairing.surfaceToken}-${pairing.textToken}`}
-              backgroundToken={pairing.surfaceToken}
-              textToken={pairing.textToken}
-              light={{
-                backgroundColor: getSurfaceColor(pairing.surfaceToken, false),
-                textColor: getTextColor(pairing.textToken, false),
-              }}
-              dark={{
-                backgroundColor: getSurfaceColor(pairing.surfaceToken, true),
-                textColor: getTextColor(pairing.textToken, true),
-              }}
-              semantic={semantic}
-            />
-          ))}
-        </div>
+        <SectionHeader
+          title="Icon on Surface"
+          subtitle="system.icon.on-surface-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Primary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.primary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.primary }}
+            semantic={semantic}
+          />
+          {/* Secondary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.secondary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.secondary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.secondary }}
+            semantic={semantic}
+          />
+          {/* Tertiary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.tertiary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.tertiary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.tertiary }}
+            semantic={semantic}
+          />
+          {/* Error */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.error"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.error }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.error }}
+            semantic={semantic}
+          />
+          {/* Success */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.success"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.success }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.success }}
+            semantic={semantic}
+          />
+          {/* Warning */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.warning"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.warning }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.warning }}
+            semantic={semantic}
+          />
+          {/* Informational */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.informational"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.informational }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.informational }}
+            semantic={semantic}
+          />
+          {/* Brand Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="icon.onSurface.brandAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.icon.onSurface.brandAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.icon.onSurface.brandAccent1 }}
+            semantic={semantic}
+          />
+        </PairingGrid>
       </div>
 
-      {/* Section 1b: Inverse Surface */}
+      {/* ===================================================================== */}
+      {/* SECTION: Text on Surface Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Inverse Surface
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (uses opposite mode text)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {inverseSurfacePairings.map((pairing) => (
-            <DualPairingCard
-              key={`${pairing.surfaceToken}-${pairing.textToken}`}
-              backgroundToken={pairing.surfaceToken}
-              textToken={pairing.textToken}
-              light={{
-                backgroundColor: getSurfaceColor(pairing.surfaceToken, false),
-                textColor: getTextColor(pairing.textToken, false),
-              }}
-              dark={{
-                backgroundColor: getSurfaceColor(pairing.surfaceToken, true),
-                textColor: getTextColor(pairing.textToken, true),
-              }}
-              semantic={semantic}
-            />
-          ))}
-        </div>
+        <SectionHeader
+          title="Text on Surface"
+          subtitle="system.text.on-surface-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Primary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.primary }}
+            semantic={semantic}
+          />
+          {/* Secondary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.secondary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.secondary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.secondary }}
+            semantic={semantic}
+          />
+          {/* Tertiary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.tertiary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.tertiary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.tertiary }}
+            semantic={semantic}
+          />
+          {/* Quatrenary */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.quatrenary"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.quatrenary }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.quatrenary }}
+            semantic={semantic}
+          />
+          {/* Brand Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.brandAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.brandAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.brandAccent1 }}
+            semantic={semantic}
+          />
+          {/* Error Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.errorAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.errorAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.errorAccent1 }}
+            semantic={semantic}
+          />
+          {/* Success Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.successAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.successAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.successAccent1 }}
+            semantic={semantic}
+          />
+          {/* Warning Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.warningAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.warningAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.warningAccent1 }}
+            semantic={semantic}
+          />
+          {/* Informational Accent 1 */}
+          <DualPairingCard
+            backgroundToken="surface"
+            textToken="text.onSurface.informationalAccent1"
+            light={{ backgroundColor: semanticLight.surface, textColor: semanticLight.text.onSurface.informationalAccent1 }}
+            dark={{ backgroundColor: semanticDark.surface, textColor: semanticDark.text.onSurface.informationalAccent1 }}
+            semantic={semantic}
+          />
+        </PairingGrid>
       </div>
 
-      {/* Section 2: Text on Fills */}
+      {/* ===================================================================== */}
+      {/* SECTION: Background Accent Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Text on Fills
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (onFill tokens)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {fillPairings.map((pairing) => (
-            <DualPairingCard
-              key={`fill-${pairing.fillToken}`}
-              backgroundToken={pairing.fillToken}
-              textToken={pairing.textToken}
-              light={{
-                backgroundColor: getFillColor(pairing.fillToken, false),
-                textColor: getOnFillColor(pairing.textToken, false),
-              }}
-              dark={{
-                backgroundColor: getFillColor(pairing.fillToken, true),
-                textColor: getOnFillColor(pairing.textToken, true),
-              }}
-              semantic={semantic}
-            />
-          ))}
-        </div>
+        <SectionHeader
+          title="Background Accent Colors"
+          subtitle="system.background.accent-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Red Accent - with error text */}
+          <DualPairingCard
+            backgroundToken="background.accent.redAccent1"
+            textToken="text.onSurface.errorAccent1"
+            light={{ backgroundColor: semanticLight.background.accent.redAccent1, textColor: semanticLight.text.onSurface.errorAccent1 }}
+            dark={{ backgroundColor: semanticDark.background.accent.redAccent1, textColor: semanticDark.text.onSurface.errorAccent1 }}
+            semantic={semantic}
+          />
+          {/* Blue Accent - with informational text */}
+          <DualPairingCard
+            backgroundToken="background.accent.blueAccent1"
+            textToken="text.onSurface.informationalAccent1"
+            light={{ backgroundColor: semanticLight.background.accent.blueAccent1, textColor: semanticLight.text.onSurface.informationalAccent1 }}
+            dark={{ backgroundColor: semanticDark.background.accent.blueAccent1, textColor: semanticDark.text.onSurface.informationalAccent1 }}
+            semantic={semantic}
+          />
+          {/* Brand Accent - with brand text */}
+          <DualPairingCard
+            backgroundToken="background.accent.brandAccent1"
+            textToken="text.onSurface.brandAccent2"
+            light={{ backgroundColor: semanticLight.background.accent.brandAccent1, textColor: semanticLight.text.onSurface.brandAccent2 }}
+            dark={{ backgroundColor: semanticDark.background.accent.brandAccent1, textColor: semanticDark.text.onSurface.brandAccent2 }}
+            semantic={semantic}
+          />
+          {/* Green Accent - with success text */}
+          <DualPairingCard
+            backgroundToken="background.accent.greenAccent1"
+            textToken="text.onSurface.successAccent1"
+            light={{ backgroundColor: semanticLight.background.accent.greenAccent1, textColor: semanticLight.text.onSurface.successAccent1 }}
+            dark={{ backgroundColor: semanticDark.background.accent.greenAccent1, textColor: semanticDark.text.onSurface.successAccent1 }}
+            semantic={semantic}
+          />
+          {/* Yellow Accent - with warning text */}
+          <DualPairingCard
+            backgroundToken="background.accent.yellowAccent1"
+            textToken="text.onSurface.warningAccent1"
+            light={{ backgroundColor: semanticLight.background.accent.yellowAccent1, textColor: semanticLight.text.onSurface.warningAccent1 }}
+            dark={{ backgroundColor: semanticDark.background.accent.yellowAccent1, textColor: semanticDark.text.onSurface.warningAccent1 }}
+            semantic={semantic}
+          />
+          {/* Light Greige Accent - with primary text */}
+          <DualPairingCard
+            backgroundToken="background.accent.lightGreigeAccent1"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.background.accent.lightGreigeAccent1, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.background.accent.lightGreigeAccent1, textColor: semanticDark.text.onSurface.primary }}
+            semantic={semantic}
+          />
+          {/* Dark Greige Accent - with inverse text */}
+          <DualPairingCard
+            backgroundToken="background.accent.darkGreigeAccent1"
+            textToken="text.onSurface.inverse"
+            light={{ backgroundColor: semanticLight.background.accent.darkGreigeAccent1, textColor: semanticLight.text.onSurface.inverse }}
+            dark={{ backgroundColor: semanticDark.background.accent.darkGreigeAccent1, textColor: semanticDark.text.onSurface.inverse }}
+            semantic={semantic}
+          />
+          {/* Brown Accent - with inverse text */}
+          <DualPairingCard
+            backgroundToken="background.accent.brownAccent1"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.background.accent.brownAccent1, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.background.accent.brownAccent1, textColor: semanticDark.text.onSurface.primary }}
+            semantic={semantic}
+          />
+        </PairingGrid>
       </div>
 
-      {/* Section 3: Semantic Text Colors */}
+      {/* ===================================================================== */}
+      {/* SECTION: Background Container Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Semantic Text Colors
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (on default surface)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {semanticTextTokens.map((textToken) => (
-            <DualPairingCard
-              key={`semantic-${textToken}`}
-              backgroundToken="surface"
-              textToken={textToken}
-              light={{
-                backgroundColor: surfaces.surface,
-                textColor: semanticLight[textToken as keyof typeof semanticLight] as string,
-              }}
-              dark={{
-                backgroundColor: surfacesDark.surface,
-                textColor: semanticDark[textToken as keyof typeof semanticDark] as string,
-              }}
-              semantic={semantic}
-            />
-          ))}
-        </div>
+        <SectionHeader
+          title="Background Containers"
+          subtitle="system.background.container-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* White container */}
+          <DualPairingCard
+            backgroundToken="background.container.white"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.background.container.white, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.background.container.white, textColor: semanticDark.text.onContainer.primary }}
+            semantic={semantic}
+          />
+          {/* Greige container */}
+          <DualPairingCard
+            backgroundToken="background.container.greige"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.background.container.greige, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.background.container.greige, textColor: semanticDark.text.onContainer.primary }}
+            semantic={semantic}
+          />
+          {/* Inverse container */}
+          <DualPairingCard
+            backgroundToken="background.container.inverse"
+            textToken="text.onSurface.inverse"
+            light={{ backgroundColor: semanticLight.background.container.inverse, textColor: semanticLight.text.onSurface.inverse }}
+            dark={{ backgroundColor: semanticDark.background.container.inverse, textColor: semanticDark.text.onSurface.inverse }}
+            semantic={semantic}
+          />
+          {/* Brand container */}
+          <DualPairingCard
+            backgroundToken="background.container.brand"
+            textToken="text.onSurface.inverse"
+            light={{ backgroundColor: semanticLight.background.container.brand, textColor: semanticLight.text.onSurface.inverse }}
+            dark={{ backgroundColor: semanticDark.background.container.brand, textColor: semanticDark.text.onSurface.inverse }}
+            semantic={semantic}
+          />
+          {/* Brand Accent container */}
+          <DualPairingCard
+            backgroundToken="background.container.brandAccent"
+            textToken="text.onSurface.brandAccent2"
+            light={{ backgroundColor: semanticLight.background.container.brandAccent, textColor: semanticLight.text.onSurface.brandAccent2 }}
+            dark={{ backgroundColor: semanticDark.background.container.brandAccent, textColor: semanticDark.text.onSurface.brandAccent2 }}
+            semantic={semantic}
+          />
+        </PairingGrid>
       </div>
 
-      {/* Section 4: Semantic Light Backgrounds */}
+      {/* ===================================================================== */}
+      {/* SECTION: Text on Container Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Semantic Backgrounds
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (alert/banner backgrounds)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {/* successLight + success */}
+        <SectionHeader
+          title="Text on Container"
+          subtitle="system.text.on-container-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Primary on greige container */}
           <DualPairingCard
-            backgroundToken="successLight"
-            textToken="success"
-            light={{
-              backgroundColor: semanticLight.successLight,
-              textColor: semanticLight.success,
-            }}
-            dark={{
-              backgroundColor: semanticDark.successLight,
-              textColor: semanticDark.success,
-            }}
+            backgroundToken="background.container.greige"
+            textToken="text.onContainer.primary"
+            light={{ backgroundColor: semanticLight.background.container.greige, textColor: semanticLight.text.onContainer.primary }}
+            dark={{ backgroundColor: semanticDark.background.container.greige, textColor: semanticDark.text.onContainer.primary }}
             semantic={semantic}
           />
-          {/* successLight + onSurface */}
+          {/* Secondary on greige container */}
           <DualPairingCard
-            backgroundToken="successLight"
-            textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.successLight,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.successLight,
-              textColor: semanticDark.onSurface,
-            }}
+            backgroundToken="background.container.greige"
+            textToken="text.onContainer.secondary"
+            light={{ backgroundColor: semanticLight.background.container.greige, textColor: semanticLight.text.onContainer.secondary }}
+            dark={{ backgroundColor: semanticDark.background.container.greige, textColor: semanticDark.text.onContainer.secondary }}
             semantic={semantic}
           />
-          {/* warningLight + warning */}
+          {/* Tertiary on greige container */}
           <DualPairingCard
-            backgroundToken="warningLight"
-            textToken="warning"
-            light={{
-              backgroundColor: semanticLight.warningLight,
-              textColor: semanticLight.warning,
-            }}
-            dark={{
-              backgroundColor: semanticDark.warningLight,
-              textColor: semanticDark.warning,
-            }}
+            backgroundToken="background.container.greige"
+            textToken="text.onContainer.tertiary"
+            light={{ backgroundColor: semanticLight.background.container.greige, textColor: semanticLight.text.onContainer.tertiary }}
+            dark={{ backgroundColor: semanticDark.background.container.greige, textColor: semanticDark.text.onContainer.tertiary }}
             semantic={semantic}
           />
-          {/* warningLight + onSurface */}
+          {/* Brand Accent on brand container */}
           <DualPairingCard
-            backgroundToken="warningLight"
-            textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.warningLight,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.warningLight,
-              textColor: semanticDark.onSurface,
-            }}
+            backgroundToken="background.container.brand"
+            textToken="text.onContainer.inverse"
+            light={{ backgroundColor: semanticLight.background.container.brand, textColor: semanticLight.text.onContainer.inverse }}
+            dark={{ backgroundColor: semanticDark.background.container.brand, textColor: semanticDark.text.onContainer.inverse }}
             semantic={semantic}
           />
-          {/* errorLight + error */}
-          <DualPairingCard
-            backgroundToken="errorLight"
-            textToken="error"
-            light={{
-              backgroundColor: semanticLight.errorLight,
-              textColor: semanticLight.error,
-            }}
-            dark={{
-              backgroundColor: semanticDark.errorLight,
-              textColor: semanticDark.error,
-            }}
-            semantic={semantic}
-          />
-          {/* errorLight + onSurface */}
-          <DualPairingCard
-            backgroundToken="errorLight"
-            textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.errorLight,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.errorLight,
-              textColor: semanticDark.onSurface,
-            }}
-            semantic={semantic}
-          />
-          {/* infoLight + info */}
-          <DualPairingCard
-            backgroundToken="infoLight"
-            textToken="info"
-            light={{
-              backgroundColor: semanticLight.infoLight,
-              textColor: semanticLight.info,
-            }}
-            dark={{
-              backgroundColor: semanticDark.infoLight,
-              textColor: semanticDark.info,
-            }}
-            semantic={semantic}
-          />
-          {/* infoLight + onSurface */}
-          <DualPairingCard
-            backgroundToken="infoLight"
-            textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.infoLight,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.infoLight,
-              textColor: semanticDark.onSurface,
-            }}
-            semantic={semantic}
-          />
-        </div>
+        </PairingGrid>
       </div>
 
-      {/* Section 5: Semantic Surfaces (from colors.ts) */}
+      {/* ===================================================================== */}
+      {/* SECTION: Icon on Container Colors */}
+      {/* ===================================================================== */}
       <div style={{ marginBottom: spacing[8] }}>
-        <h3
-          style={{
-            ...typography.h6,
-            color: semantic.onSurface,
-            marginBottom: spacing[4],
-          }}
-        >
-          Semantic Surface Hierarchy
-          <span
-            style={{
-              ...typography.bodySm,
-              fontWeight: 400,
-              marginLeft: spacing[2],
-              color: semantic.onSurfaceSecondary,
-            }}
-          >
-            (surface, surfaceSecondary, surfaceTertiary)
-          </span>
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: spacing[4],
-          }}
-        >
-          {/* surfaceSecondary + onSurface variants */}
+        <SectionHeader
+          title="Icon on Container"
+          subtitle="system.icon.on-container-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Primary icon on greige container */}
           <DualPairingCard
-            backgroundToken="surfaceSecondary"
+            backgroundToken="background.container.greige"
+            textToken="icon.onContainer.primary"
+            light={{ backgroundColor: semanticLight.background.container.greige, textColor: semanticLight.icon.onContainer.primary }}
+            dark={{ backgroundColor: semanticDark.background.container.greige, textColor: semanticDark.icon.onContainer.primary }}
+            semantic={semantic}
+          />
+          {/* Error icon on white container */}
+          <DualPairingCard
+            backgroundToken="background.container.white"
+            textToken="icon.onContainer.error"
+            light={{ backgroundColor: semanticLight.background.container.white, textColor: semanticLight.icon.onContainer.error }}
+            dark={{ backgroundColor: semanticDark.background.container.white, textColor: semanticDark.icon.onContainer.error }}
+            semantic={semantic}
+          />
+          {/* Success icon on white container */}
+          <DualPairingCard
+            backgroundToken="background.container.white"
+            textToken="icon.onContainer.success"
+            light={{ backgroundColor: semanticLight.background.container.white, textColor: semanticLight.icon.onContainer.success }}
+            dark={{ backgroundColor: semanticDark.background.container.white, textColor: semanticDark.icon.onContainer.success }}
+            semantic={semantic}
+          />
+          {/* Warning icon on white container */}
+          <DualPairingCard
+            backgroundToken="background.container.white"
+            textToken="icon.onContainer.warning"
+            light={{ backgroundColor: semanticLight.background.container.white, textColor: semanticLight.icon.onContainer.warning }}
+            dark={{ backgroundColor: semanticDark.background.container.white, textColor: semanticDark.icon.onContainer.warning }}
+            semantic={semantic}
+          />
+          {/* Inverse icon on brand container */}
+          <DualPairingCard
+            backgroundToken="background.container.brand"
+            textToken="icon.onContainer.inverse"
+            light={{ backgroundColor: semanticLight.background.container.brand, textColor: semanticLight.icon.onContainer.inverse }}
+            dark={{ backgroundColor: semanticDark.background.container.brand, textColor: semanticDark.icon.onContainer.inverse }}
+            semantic={semantic}
+          />
+        </PairingGrid>
+      </div>
+
+      {/* ===================================================================== */}
+      {/* SECTION: Background Surface Colors */}
+      {/* ===================================================================== */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <SectionHeader
+          title="Surface Colors"
+          subtitle="system.background.surface-color"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          {/* Greige surface with primary text */}
+          <DualPairingCard
+            backgroundToken="background.surface.greige"
+            textToken="text.onSurface.primary"
+            light={{ backgroundColor: semanticLight.background.surface.greige, textColor: semanticLight.text.onSurface.primary }}
+            dark={{ backgroundColor: semanticDark.background.surface.greige, textColor: semanticDark.text.onSurface.primary }}
+            semantic={semantic}
+          />
+          {/* Inverse surface with inverse text */}
+          <DualPairingCard
+            backgroundToken="background.surface.inverse"
+            textToken="text.onSurface.inverse"
+            light={{ backgroundColor: semanticLight.background.surface.inverse, textColor: semanticLight.text.onSurface.inverse }}
+            dark={{ backgroundColor: semanticDark.background.surface.inverse, textColor: semanticDark.text.onSurface.inverse }}
+            semantic={semantic}
+          />
+        </PairingGrid>
+      </div>
+
+      {/* ===================================================================== */}
+      {/* SECTION: Fill + onFill pairings (Legacy) */}
+      {/* ===================================================================== */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <SectionHeader
+          title="Fill Colors"
+          subtitle="fills + onFill tokens"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          <DualPairingCard
+            backgroundToken="fills.primary"
+            textToken="onFill.onPrimary"
+            light={{ backgroundColor: currentFills.primary, textColor: onFill.onPrimary }}
+            dark={{ backgroundColor: currentFillsDark.primary, textColor: onFillDark.onPrimary }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.secondary"
+            textToken="onFill.onSecondary"
+            light={{ backgroundColor: currentFills.secondary, textColor: onFill.onSecondary }}
+            dark={{ backgroundColor: currentFillsDark.secondary, textColor: onFillDark.onSecondary }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.error"
+            textToken="onFill.onError"
+            light={{ backgroundColor: currentFills.error, textColor: onFill.onError }}
+            dark={{ backgroundColor: currentFillsDark.error, textColor: onFillDark.onError }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.success"
+            textToken="onFill.onSuccess"
+            light={{ backgroundColor: currentFills.success, textColor: onFill.onSuccess }}
+            dark={{ backgroundColor: currentFillsDark.success, textColor: onFillDark.onSuccess }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.warning"
+            textToken="onFill.onWarning"
+            light={{ backgroundColor: currentFills.warning, textColor: onFill.onWarning }}
+            dark={{ backgroundColor: currentFillsDark.warning, textColor: onFillDark.onWarning }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.info"
+            textToken="onFill.onInfo"
+            light={{ backgroundColor: currentFills.info, textColor: onFill.onInfo }}
+            dark={{ backgroundColor: currentFillsDark.info, textColor: onFillDark.onInfo }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.neutral"
+            textToken="onFill.onNeutral"
+            light={{ backgroundColor: currentFills.neutral, textColor: onFill.onNeutral }}
+            dark={{ backgroundColor: currentFillsDark.neutral, textColor: onFillDark.onNeutral }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="fills.inverse"
+            textToken="onFill.onInverse"
+            light={{ backgroundColor: currentFills.inverse, textColor: onFill.onInverse }}
+            dark={{ backgroundColor: currentFillsDark.inverse, textColor: onFillDark.onInverse }}
+            semantic={semantic}
+          />
+        </PairingGrid>
+      </div>
+
+      {/* ===================================================================== */}
+      {/* SECTION: Material 3 Surface Containers */}
+      {/* ===================================================================== */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <SectionHeader
+          title="Surface Container Hierarchy"
+          subtitle="Material 3 surfaces"
+          semantic={semantic}
+        />
+        <PairingGrid>
+          <DualPairingCard
+            backgroundToken="surfaceContainerLowest"
             textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.surfaceSecondary,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceSecondary,
-              textColor: semanticDark.onSurface,
-            }}
+            light={{ backgroundColor: currentSurfaces.surfaceContainerLowest, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceContainerLowest, textColor: semanticDark.onSurface }}
             semantic={semantic}
           />
           <DualPairingCard
-            backgroundToken="surfaceSecondary"
-            textToken="onSurfaceSecondary"
-            light={{
-              backgroundColor: semanticLight.surfaceSecondary,
-              textColor: semanticLight.onSurfaceSecondary,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceSecondary,
-              textColor: semanticDark.onSurfaceSecondary,
-            }}
-            semantic={semantic}
-          />
-          <DualPairingCard
-            backgroundToken="surfaceSecondary"
-            textToken="onSurfaceTertiary"
-            light={{
-              backgroundColor: semanticLight.surfaceSecondary,
-              textColor: semanticLight.onSurfaceTertiary,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceSecondary,
-              textColor: semanticDark.onSurfaceTertiary,
-            }}
-            semantic={semantic}
-          />
-          {/* surfaceTertiary + onSurface variants */}
-          <DualPairingCard
-            backgroundToken="surfaceTertiary"
+            backgroundToken="surfaceContainerLow"
             textToken="onSurface"
-            light={{
-              backgroundColor: semanticLight.surfaceTertiary,
-              textColor: semanticLight.onSurface,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceTertiary,
-              textColor: semanticDark.onSurface,
-            }}
+            light={{ backgroundColor: currentSurfaces.surfaceContainerLow, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceContainerLow, textColor: semanticDark.onSurface }}
             semantic={semantic}
           />
           <DualPairingCard
-            backgroundToken="surfaceTertiary"
-            textToken="onSurfaceSecondary"
-            light={{
-              backgroundColor: semanticLight.surfaceTertiary,
-              textColor: semanticLight.onSurfaceSecondary,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceTertiary,
-              textColor: semanticDark.onSurfaceSecondary,
-            }}
+            backgroundToken="surfaceContainer"
+            textToken="onSurface"
+            light={{ backgroundColor: currentSurfaces.surfaceContainer, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceContainer, textColor: semanticDark.onSurface }}
             semantic={semantic}
           />
           <DualPairingCard
-            backgroundToken="surfaceTertiary"
-            textToken="onSurfaceTertiary"
-            light={{
-              backgroundColor: semanticLight.surfaceTertiary,
-              textColor: semanticLight.onSurfaceTertiary,
-            }}
-            dark={{
-              backgroundColor: semanticDark.surfaceTertiary,
-              textColor: semanticDark.onSurfaceTertiary,
-            }}
+            backgroundToken="surfaceContainerHigh"
+            textToken="onSurface"
+            light={{ backgroundColor: currentSurfaces.surfaceContainerHigh, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceContainerHigh, textColor: semanticDark.onSurface }}
             semantic={semantic}
           />
-        </div>
+          <DualPairingCard
+            backgroundToken="surfaceContainerHighest"
+            textToken="onSurface"
+            light={{ backgroundColor: currentSurfaces.surfaceContainerHighest, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceContainerHighest, textColor: semanticDark.onSurface }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="surfaceDim"
+            textToken="onSurface"
+            light={{ backgroundColor: currentSurfaces.surfaceDim, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceDim, textColor: semanticDark.onSurface }}
+            semantic={semantic}
+          />
+          <DualPairingCard
+            backgroundToken="surfaceBright"
+            textToken="onSurface"
+            light={{ backgroundColor: currentSurfaces.surfaceBright, textColor: semanticLight.onSurface }}
+            dark={{ backgroundColor: currentSurfacesDark.surfaceBright, textColor: semanticDark.onSurface }}
+            semantic={semantic}
+          />
+        </PairingGrid>
       </div>
     </section>
   );
