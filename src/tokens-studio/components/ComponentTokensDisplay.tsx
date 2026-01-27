@@ -81,24 +81,24 @@ function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   };
 
   const colorBoxStyle: React.CSSProperties = {
-    width: 36,
-    height: 36,
-    borderRadius: 6,
+    width: 32,
+    height: 32,
+    borderRadius: 5,
     backgroundColor: isColor ? value : (isDarkMode ? '#3a3a3a' : '#e5e1de'),
     border: `1px solid ${isDarkMode ? '#4a4a4a' : '#d0d0d0'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 9,
+    fontSize: 8,
     color: isDarkMode ? '#8b949e' : '#787675',
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 8,
+    fontSize: 7,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#8b949e' : '#787675',
     textAlign: 'center',
-    maxWidth: 44,
+    maxWidth: 40,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -152,27 +152,24 @@ function VariantRow({ variantName, tokens, isDarkMode }: VariantRowProps) {
   });
 
   const rowStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '8px 0',
-    borderBottom: `1px solid ${isDarkMode ? '#2a2a2a' : '#f0eeec'}`,
+    padding: '6px 0',
+    borderBottom: `1px solid ${isDarkMode ? '#2a2a2a' : '#eeebe8'}`,
   };
 
   const labelStyle: React.CSSProperties = {
-    width: 120,
-    fontSize: 11,
-    fontWeight: 500,
+    fontSize: 10,
+    fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#bab7b4' : '#585756',
-    flexShrink: 0,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: '0.3px',
   };
 
   const statesStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 4,
-    flex: 1,
+    gap: 2,
   };
 
   // Format variant name
@@ -210,11 +207,17 @@ function TokenTypeSection({ typeName, group, isDarkMode }: TokenTypeSectionProps
   };
 
   const sectionStyle: React.CSSProperties = {
-    marginBottom: 24,
+    flex: '1 1 300px',
+    minWidth: 280,
+    maxWidth: 450,
+    backgroundColor: isDarkMode ? '#222222' : '#fafafa',
+    borderRadius: 8,
+    padding: 16,
+    border: `1px solid ${isDarkMode ? '#333333' : '#e5e1de'}`,
   };
 
   const headerStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#fbfaf9' : '#252524',
@@ -351,6 +354,10 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
     borderRadius: '0 0 10px 10px',
     border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
     borderTop: 'none',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 16,
+    alignItems: 'flex-start',
   };
 
   // Get token types (icon, text, background, etc.)
