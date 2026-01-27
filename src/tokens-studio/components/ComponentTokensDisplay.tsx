@@ -81,8 +81,8 @@ function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   };
 
   const colorBoxStyle: React.CSSProperties = {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: 6,
     backgroundColor: isColor ? value : (isDarkMode ? '#3a3a3a' : '#e5e1de'),
     border: `1px solid ${isDarkMode ? '#4a4a4a' : '#d0d0d0'}`,
@@ -94,11 +94,11 @@ function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 9,
+    fontSize: 8,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#8b949e' : '#787675',
     textAlign: 'center',
-    maxWidth: 48,
+    maxWidth: 44,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -139,44 +139,52 @@ function StateSwatch({ token, isDarkMode }: StateSwatchProps) {
   );
 }
 
-interface VariantCardProps {
+interface VariantRowProps {
   variantName: string;
   tokens: ResolvedToken[];
   isDarkMode: boolean;
 }
 
-function VariantCard({ variantName, tokens, isDarkMode }: VariantCardProps) {
+function VariantRow({ variantName, tokens, isDarkMode }: VariantRowProps) {
   // Sort tokens by state order
   const sortedTokens = [...tokens].sort((a, b) => {
     return getStateOrder(a.name) - getStateOrder(b.name);
   });
 
-  const cardStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
-    borderRadius: 8,
-    padding: 12,
-    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+  const rowStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    padding: '8px 0',
+    borderBottom: `1px solid ${isDarkMode ? '#2a2a2a' : '#f0eeec'}`,
   };
 
-  const headerStyle: React.CSSProperties = {
-    fontSize: 12,
-    fontWeight: 600,
+  const labelStyle: React.CSSProperties = {
+    width: 120,
+    fontSize: 11,
+    fontWeight: 500,
     fontFamily: FONT_OPEN_SANS,
-    color: isDarkMode ? '#fbfaf9' : '#252524',
-    marginBottom: 8,
-    paddingBottom: 8,
-    borderBottom: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+    color: isDarkMode ? '#bab7b4' : '#585756',
+    flexShrink: 0,
   };
 
   const statesStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 4,
+    flex: 1,
+  };
+
+  // Format variant name
+  const formatName = (name: string) => {
+    return name
+      .replace(/-/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2');
   };
 
   return (
-    <div style={cardStyle}>
-      <div style={headerStyle}>{variantName}</div>
+    <div style={rowStyle}>
+      <div style={labelStyle}>{formatName(variantName)}</div>
       <div style={statesStyle}>
         {sortedTokens.map(token => (
           <StateSwatch key={token.path} token={token} isDarkMode={isDarkMode} />
@@ -193,60 +201,6 @@ interface TokenTypeSectionProps {
 }
 
 function TokenTypeSection({ typeName, group, isDarkMode }: TokenTypeSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  // Count total tokens in this type
-  const countTokens = (g: TokenGroup): number => {
-    let count = g.tokens.length;
-    g.subgroups.forEach(sub => {
-      count += countTokens(sub);
-    });
-    return count;
-  };
-  const tokenCount = countTokens(group);
-
-  const headerStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '8px 12px',
-    backgroundColor: isDarkMode ? '#1a1a1a' : '#f0eeec',
-    borderRadius: 6,
-    cursor: 'pointer',
-    marginBottom: isExpanded ? 12 : 0,
-    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: 14,
-    fontWeight: 600,
-    fontFamily: FONT_OPEN_SANS,
-    color: isDarkMode ? '#fbfaf9' : '#252524',
-    flex: 1,
-  };
-
-  const countStyle: React.CSSProperties = {
-    fontSize: 10,
-    fontFamily: FONT_OPEN_SANS,
-    backgroundColor: isDarkMode ? '#3a3a3a' : '#e5e1de',
-    padding: '2px 6px',
-    borderRadius: 8,
-    color: isDarkMode ? '#bab7b4' : '#585756',
-  };
-
-  const chevronStyle: React.CSSProperties = {
-    fontSize: 12,
-    color: isDarkMode ? '#8b949e' : '#787675',
-    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-    transition: 'transform 0.2s ease',
-  };
-
-  const gridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: 12,
-  };
-
   // Format type name for display
   const formatTypeName = (name: string) => {
     return name
@@ -255,47 +209,69 @@ function TokenTypeSection({ typeName, group, isDarkMode }: TokenTypeSectionProps
       .replace(/\b\w/g, c => c.toUpperCase());
   };
 
+  const sectionStyle: React.CSSProperties = {
+    marginBottom: 24,
+  };
+
+  const headerStyle: React.CSSProperties = {
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: FONT_OPEN_SANS,
+    color: isDarkMode ? '#fbfaf9' : '#252524',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottom: `2px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  };
+
+  const badgeStyle: React.CSSProperties = {
+    fontSize: 10,
+    fontWeight: 400,
+    backgroundColor: isDarkMode ? '#3a3a3a' : '#e5e1de',
+    padding: '2px 6px',
+    borderRadius: 8,
+    color: isDarkMode ? '#8b949e' : '#787675',
+  };
+
+  // Count tokens
+  const countTokens = (g: TokenGroup): number => {
+    let count = g.tokens.length;
+    g.subgroups.forEach(sub => {
+      count += countTokens(sub);
+    });
+    return count;
+  };
+
+  const variants = Array.from(group.subgroups.entries());
+  const hasDirectTokens = group.tokens.length > 0;
+
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div
-        style={headerStyle}
-        onClick={() => setIsExpanded(!isExpanded)}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = isDarkMode ? '#252525' : '#e8e5e2';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#f0eeec';
-        }}
-      >
-        <span style={chevronStyle}>▶</span>
-        <span style={titleStyle}>{formatTypeName(typeName)}</span>
-        <span style={countStyle}>{tokenCount}</span>
+    <div style={sectionStyle}>
+      <div style={headerStyle}>
+        {formatTypeName(typeName)}
+        <span style={badgeStyle}>{countTokens(group)}</span>
       </div>
-      {isExpanded && (
-        <div style={{ paddingLeft: 12 }}>
-          {/* Direct tokens in this type */}
-          {group.tokens.length > 0 && (
-            <div style={{ ...gridStyle, marginBottom: 12 }}>
-              <VariantCard
-                variantName="General"
-                tokens={group.tokens}
-                isDarkMode={isDarkMode}
-              />
-            </div>
-          )}
-          {/* Variant subgroups */}
-          <div style={gridStyle}>
-            {Array.from(group.subgroups.entries()).map(([variantName, variantGroup]) => (
-              <VariantCard
-                key={variantName}
-                variantName={formatTypeName(variantName)}
-                tokens={variantGroup.tokens}
-                isDarkMode={isDarkMode}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <div>
+        {/* Direct tokens */}
+        {hasDirectTokens && (
+          <VariantRow
+            variantName="General"
+            tokens={group.tokens}
+            isDarkMode={isDarkMode}
+          />
+        )}
+        {/* Variant rows */}
+        {variants.map(([variantName, variantGroup]) => (
+          <VariantRow
+            key={variantName}
+            variantName={variantName}
+            tokens={variantGroup.tokens}
+            isDarkMode={isDarkMode}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -334,16 +310,16 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '14px 18px',
-    backgroundColor: isDarkMode ? '#1a1a1a' : '#f8f5f2',
-    borderRadius: 10,
+    backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+    borderRadius: isExpanded ? '10px 10px 0 0' : 10,
     cursor: 'pointer',
-    marginBottom: isExpanded ? 16 : 0,
     border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+    borderBottom: isExpanded ? 'none' : `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
     transition: 'background-color 0.15s ease',
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#fbfaf9' : '#252524',
@@ -363,25 +339,33 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
   };
 
   const chevronStyle: React.CSSProperties = {
-    fontSize: 16,
+    fontSize: 14,
     color: isDarkMode ? '#8b949e' : '#787675',
     transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
     transition: 'transform 0.2s ease',
   };
 
-  // Get token types (icon, text, background, etc.) - these are the first-level subgroups
+  const contentStyle: React.CSSProperties = {
+    padding: '20px',
+    backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+    borderRadius: '0 0 10px 10px',
+    border: `1px solid ${isDarkMode ? '#3a3a3a' : '#e5e1de'}`,
+    borderTop: 'none',
+  };
+
+  // Get token types (icon, text, background, etc.)
   const tokenTypes = Array.from(hierarchy.subgroups.entries());
 
   return (
-    <div style={{ marginBottom: 20 }} className="animate-section">
+    <div style={{ marginBottom: 16 }} className="animate-section">
       <div
         style={headerStyle}
         onClick={() => setIsExpanded(!isExpanded)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = isDarkMode ? '#252525' : '#f0eeec';
+          e.currentTarget.style.backgroundColor = isDarkMode ? '#252525' : '#f8f5f2';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#f8f5f2';
+          e.currentTarget.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#ffffff';
         }}
       >
         <div style={titleStyle}>
@@ -400,7 +384,7 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
         )}
       </div>
       {isExpanded && (
-        <div style={{ paddingLeft: 12 }}>
+        <div style={contentStyle}>
           {/* Render token types (icon, text, background, etc.) */}
           {tokenTypes.map(([typeName, typeGroup]) => (
             <TokenTypeSection
@@ -412,19 +396,11 @@ function ComponentSection({ category, isDarkMode, defaultExpanded = false }: Com
           ))}
           {/* Direct tokens without type grouping */}
           {hierarchy.tokens.length > 0 && (
-            <div style={{ marginTop: 12 }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: 12,
-              }}>
-                <VariantCard
-                  variantName="Other"
-                  tokens={hierarchy.tokens}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-            </div>
+            <TokenTypeSection
+              typeName="Other"
+              group={{ name: 'other', tokens: hierarchy.tokens, subgroups: new Map() }}
+              isDarkMode={isDarkMode}
+            />
           )}
         </div>
       )}
@@ -525,7 +501,7 @@ export function ComponentTokensDisplay({ components, isDarkMode }: ComponentToke
     <div style={sectionStyle}>
       <h2 style={sectionTitleStyle}>Component Tokens</h2>
       <p style={descriptionStyle}>
-        Design tokens for UI components, organized by token type (icon, text, background) and variant.
+        Design tokens for UI components, organized by token type and variant.
         Click any color swatch to copy its value.
       </p>
 
@@ -563,7 +539,7 @@ export function ComponentTokensDisplay({ components, isDarkMode }: ComponentToke
             key={component.id}
             category={component}
             isDarkMode={isDarkMode}
-            defaultExpanded={index === 0 && filteredComponents.length <= 3}
+            defaultExpanded={index === 0 && filteredComponents.length <= 5}
           />
         ))
       ) : (
