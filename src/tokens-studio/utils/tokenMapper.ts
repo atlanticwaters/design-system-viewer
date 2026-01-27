@@ -99,23 +99,42 @@ function mapGroupToCategory(
 
 /**
  * Map Color/Default category to core palettes
+ * Also checks "core/colors" path for Tokens Studio Sandbox format
  */
 function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
-  const colorDefault = tokens['Color/Default'];
-  if (!colorDefault) return [];
-
   const palettes: TokenCategory[] = [];
 
-  for (const [paletteName, paletteValue] of Object.entries(colorDefault)) {
-    if (isTokenGroup(paletteValue)) {
-      const category = mapGroupToCategory(
-        tokens,
-        paletteValue,
-        `Color/Default.${paletteName}`,
-        paletteName,
-        formatLabel(paletteName)
-      );
-      palettes.push(category);
+  // Check legacy "Color/Default" path
+  const colorDefault = tokens['Color/Default'];
+  if (colorDefault) {
+    for (const [paletteName, paletteValue] of Object.entries(colorDefault)) {
+      if (isTokenGroup(paletteValue)) {
+        const category = mapGroupToCategory(
+          tokens,
+          paletteValue,
+          `Color/Default.${paletteName}`,
+          paletteName,
+          formatLabel(paletteName)
+        );
+        palettes.push(category);
+      }
+    }
+  }
+
+  // Check Tokens Studio Sandbox "core/colors" path
+  const coreColors = tokens['core/colors'];
+  if (coreColors) {
+    for (const [paletteName, paletteValue] of Object.entries(coreColors)) {
+      if (isTokenGroup(paletteValue)) {
+        const category = mapGroupToCategory(
+          tokens,
+          paletteValue,
+          `core/colors.${paletteName}`,
+          paletteName,
+          formatLabel(paletteName)
+        );
+        palettes.push(category);
+      }
     }
   }
 
@@ -124,7 +143,10 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
 
 /**
  * Map Component Tokens and Semantic Tokens for a specific mode (Light/Dark)
- * Checks both "Component Tokens/{mode}" and "Semantic Tokens/{mode}" paths
+ * Checks multiple path patterns:
+ * - "Component Tokens/{mode}" (legacy)
+ * - "Semantic Tokens/{mode}" (legacy)
+ * - "semantic/light" or "semantic/dark" (Tokens Studio Sandbox format)
  */
 function mapComponentTokens(
   tokens: TokensStudioFile,
@@ -132,7 +154,7 @@ function mapComponentTokens(
 ): TokenCategory[] {
   const categories: TokenCategory[] = [];
 
-  // First check Component Tokens path
+  // First check Component Tokens path (legacy format)
   const componentTokens = tokens[`Component Tokens/${mode}`];
   if (componentTokens) {
     for (const [categoryName, categoryValue] of Object.entries(componentTokens)) {
@@ -149,7 +171,7 @@ function mapComponentTokens(
     }
   }
 
-  // Also check Semantic Tokens path (separate files in Tokens Studio)
+  // Also check Semantic Tokens path (legacy format)
   const semanticTokens = tokens[`Semantic Tokens/${mode}`];
   if (semanticTokens) {
     for (const [categoryName, categoryValue] of Object.entries(semanticTokens)) {
@@ -166,45 +188,107 @@ function mapComponentTokens(
     }
   }
 
+  // Check for Tokens Studio Sandbox format: "semantic/light" or "semantic/dark"
+  const sandboxMode = mode === 'Light Mode' ? 'light' : 'dark';
+  const sandboxTokens = tokens[`semantic/${sandboxMode}`];
+  if (sandboxTokens) {
+    for (const [categoryName, categoryValue] of Object.entries(sandboxTokens)) {
+      if (isTokenGroup(categoryValue)) {
+        const category = mapGroupToCategory(
+          tokens,
+          categoryValue,
+          `semantic/${sandboxMode}.${categoryName}`,
+          categoryName,
+          formatLabel(categoryName)
+        );
+        categories.push(category);
+      }
+    }
+  }
+
   return categories;
 }
 
 /**
  * Map Typography tokens
+ * Checks multiple path patterns:
+ * - "Typography/Default" (legacy)
+ * - "core/font-family", "core/font-size", etc. (Tokens Studio Sandbox)
  */
 function mapTypography(tokens: TokensStudioFile): TokenCategory {
+  const subcategories: TokenCategory[] = [];
+
+  // Check legacy "Typography/Default" path
   const typography = tokens['Typography/Default'];
-  if (!typography) {
-    return { id: 'typography', label: 'Typography', tokens: [] };
+  if (typography) {
+    return mapGroupToCategory(
+      tokens,
+      typography,
+      'Typography/Default',
+      'typography',
+      'Typography'
+    );
   }
 
-  return mapGroupToCategory(
-    tokens,
-    typography,
-    'Typography/Default',
-    'typography',
-    'Typography'
-  );
+  // Check Tokens Studio Sandbox paths for typography
+  const typographyPaths = [
+    { key: 'core/font-family', label: 'Font Family' },
+    { key: 'core/font-size', label: 'Font Size' },
+    { key: 'core/font-weight', label: 'Font Weight' },
+    { key: 'core/letter-spacing', label: 'Letter Spacing' },
+    { key: 'core/line-height', label: 'Line Height' },
+  ];
+
+  for (const { key, label } of typographyPaths) {
+    const group = tokens[key];
+    if (group && isTokenGroup(group)) {
+      const category = mapGroupToCategory(tokens, group, key, key, label);
+      if (category.tokens.length > 0 || (category.subcategories && category.subcategories.length > 0)) {
+        subcategories.push(category);
+      }
+    }
+  }
+
+  return {
+    id: 'typography',
+    label: 'Typography',
+    tokens: [],
+    subcategories: subcategories.length > 0 ? subcategories : undefined,
+  };
 }
 
 /**
  * Map Spacing tokens
+ * Checks multiple path patterns:
+ * - "Spacing/Mode 1" (legacy)
+ * - "core/spacing" (Tokens Studio Sandbox)
  */
 function mapSpacing(tokens: TokensStudioFile): TokenCategory {
-  const spacing = tokens['Spacing/Mode 1'];
-  if (!spacing) {
-    return { id: 'spacing', label: 'Spacing', tokens: [] };
-  }
-
   const resolvedTokens: ResolvedToken[] = [];
 
-  for (const [key, value] of Object.entries(spacing)) {
-    if (isToken(value)) {
-      try {
-        const resolved = resolveToken(tokens, `Spacing/Mode 1.${key}`);
-        resolvedTokens.push(resolved);
-      } catch (error) {
-        console.warn(`Failed to resolve Spacing/Mode 1.${key}:`, error);
+  // Check legacy "Spacing/Mode 1" path
+  const spacing = tokens['Spacing/Mode 1'];
+  if (spacing) {
+    for (const [key, value] of Object.entries(spacing)) {
+      if (isToken(value)) {
+        try {
+          const resolved = resolveToken(tokens, `Spacing/Mode 1.${key}`);
+          resolvedTokens.push(resolved);
+        } catch (error) {
+          console.warn(`Failed to resolve Spacing/Mode 1.${key}:`, error);
+        }
+      }
+    }
+  }
+
+  // Check Tokens Studio Sandbox "core/spacing" path
+  const coreSpacing = tokens['core/spacing'];
+  if (coreSpacing && isTokenGroup(coreSpacing)) {
+    const category = mapGroupToCategory(tokens, coreSpacing, 'core/spacing', 'spacing', 'Spacing');
+    resolvedTokens.push(...category.tokens);
+    if (category.subcategories) {
+      for (const sub of category.subcategories) {
+        resolvedTokens.push(...sub.tokens);
       }
     }
   }
@@ -225,22 +309,45 @@ function mapSpacing(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Radius tokens
+ * Checks multiple path patterns:
+ * - "Radius/Mode 1" (legacy)
+ * - "core/border.border.radius" (Tokens Studio Sandbox)
  */
 function mapRadius(tokens: TokensStudioFile): TokenCategory {
-  const radius = tokens['Radius/Mode 1'];
-  if (!radius) {
-    return { id: 'radius', label: 'Border Radius', tokens: [] };
-  }
-
   const resolvedTokens: ResolvedToken[] = [];
 
-  for (const [key, value] of Object.entries(radius)) {
-    if (isToken(value)) {
-      try {
-        const resolved = resolveToken(tokens, `Radius/Mode 1.${key}`);
-        resolvedTokens.push(resolved);
-      } catch (error) {
-        console.warn(`Failed to resolve Radius/Mode 1.${key}:`, error);
+  // Check legacy "Radius/Mode 1" path
+  const radius = tokens['Radius/Mode 1'];
+  if (radius) {
+    for (const [key, value] of Object.entries(radius)) {
+      if (isToken(value)) {
+        try {
+          const resolved = resolveToken(tokens, `Radius/Mode 1.${key}`);
+          resolvedTokens.push(resolved);
+        } catch (error) {
+          console.warn(`Failed to resolve Radius/Mode 1.${key}:`, error);
+        }
+      }
+    }
+  }
+
+  // Check Tokens Studio Sandbox "core/border" path for radius
+  const coreBorder = tokens['core/border'];
+  if (coreBorder && isTokenGroup(coreBorder)) {
+    const borderGroup = coreBorder['border'];
+    if (borderGroup && isTokenGroup(borderGroup)) {
+      const radiusGroup = borderGroup['radius'];
+      if (radiusGroup && isTokenGroup(radiusGroup)) {
+        for (const [key, value] of Object.entries(radiusGroup)) {
+          if (isToken(value)) {
+            try {
+              const resolved = resolveToken(tokens, `core/border.border.radius.${key}`);
+              resolvedTokens.push(resolved);
+            } catch (error) {
+              console.warn(`Failed to resolve core/border.border.radius.${key}:`, error);
+            }
+          }
+        }
       }
     }
   }
@@ -261,22 +368,45 @@ function mapRadius(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Border Width tokens
+ * Checks multiple path patterns:
+ * - "Border Width/Mode 1" (legacy)
+ * - "core/border.border.width" (Tokens Studio Sandbox)
  */
 function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
-  const borderWidth = tokens['Border Width/Mode 1'];
-  if (!borderWidth) {
-    return { id: 'borderWidth', label: 'Border Width', tokens: [] };
-  }
-
   const resolvedTokens: ResolvedToken[] = [];
 
-  for (const [key, value] of Object.entries(borderWidth)) {
-    if (isToken(value)) {
-      try {
-        const resolved = resolveToken(tokens, `Border Width/Mode 1.${key}`);
-        resolvedTokens.push(resolved);
-      } catch (error) {
-        console.warn(`Failed to resolve Border Width/Mode 1.${key}:`, error);
+  // Check legacy "Border Width/Mode 1" path
+  const borderWidth = tokens['Border Width/Mode 1'];
+  if (borderWidth) {
+    for (const [key, value] of Object.entries(borderWidth)) {
+      if (isToken(value)) {
+        try {
+          const resolved = resolveToken(tokens, `Border Width/Mode 1.${key}`);
+          resolvedTokens.push(resolved);
+        } catch (error) {
+          console.warn(`Failed to resolve Border Width/Mode 1.${key}:`, error);
+        }
+      }
+    }
+  }
+
+  // Check Tokens Studio Sandbox "core/border" path for width
+  const coreBorder = tokens['core/border'];
+  if (coreBorder && isTokenGroup(coreBorder)) {
+    const borderGroup = coreBorder['border'];
+    if (borderGroup && isTokenGroup(borderGroup)) {
+      const widthGroup = borderGroup['width'];
+      if (widthGroup && isTokenGroup(widthGroup)) {
+        for (const [key, value] of Object.entries(widthGroup)) {
+          if (isToken(value)) {
+            try {
+              const resolved = resolveToken(tokens, `core/border.border.width.${key}`);
+              resolvedTokens.push(resolved);
+            } catch (error) {
+              console.warn(`Failed to resolve core/border.border.width.${key}:`, error);
+            }
+          }
+        }
       }
     }
   }
@@ -297,23 +427,38 @@ function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Effects tokens
+ * Checks multiple path patterns:
+ * - "Effects/Mode 1" (legacy)
+ * - "core/elevation" (Tokens Studio Sandbox)
  */
 function mapEffects(tokens: TokensStudioFile): TokenCategory {
+  const resolvedTokens: ResolvedToken[] = [];
+  const subcategories: TokenCategory[] = [];
+
+  // Check legacy "Effects/Mode 1" path
   const effects = tokens['Effects/Mode 1'];
-  if (!effects) {
-    return { id: 'effects', label: 'Effects', tokens: [] };
+  if (effects) {
+    for (const [key, value] of Object.entries(effects)) {
+      if (isToken(value)) {
+        try {
+          const resolved = resolveToken(tokens, `Effects/Mode 1.${key}`);
+          resolvedTokens.push(resolved);
+        } catch (error) {
+          console.warn(`Failed to resolve Effects/Mode 1.${key}:`, error);
+        }
+      }
+    }
   }
 
-  const resolvedTokens: ResolvedToken[] = [];
-
-  for (const [key, value] of Object.entries(effects)) {
-    if (isToken(value)) {
-      try {
-        const resolved = resolveToken(tokens, `Effects/Mode 1.${key}`);
-        resolvedTokens.push(resolved);
-      } catch (error) {
-        console.warn(`Failed to resolve Effects/Mode 1.${key}:`, error);
-      }
+  // Check Tokens Studio Sandbox "core/elevation" path
+  const coreElevation = tokens['core/elevation'];
+  if (coreElevation && isTokenGroup(coreElevation)) {
+    const category = mapGroupToCategory(tokens, coreElevation, 'core/elevation', 'elevation', 'Elevation');
+    if (category.tokens.length > 0) {
+      resolvedTokens.push(...category.tokens);
+    }
+    if (category.subcategories) {
+      subcategories.push(...category.subcategories);
     }
   }
 
@@ -321,6 +466,7 @@ function mapEffects(tokens: TokensStudioFile): TokenCategory {
     id: 'effects',
     label: 'Effects',
     tokens: resolvedTokens,
+    subcategories: subcategories.length > 0 ? subcategories : undefined,
   };
 }
 

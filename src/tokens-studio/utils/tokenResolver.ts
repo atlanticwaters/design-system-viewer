@@ -39,6 +39,7 @@ export function inferTokenType(value: string | number): TokenType {
  * Resolve token references in the tokens file
  * Handles the special case where references in Component Tokens
  * reference tokens in Color/Default without the category prefix
+ * Also handles Tokens Studio Sandbox format (core/colors, semantic/light, etc.)
  */
 function findTokenPath(
   tokens: TokensStudioFile,
@@ -53,6 +54,34 @@ function findTokenPath(
   const colorPath = `Color/Default.${referencePath}`;
   token = getTokenAtPath(tokens, colorPath);
   if (token) return colorPath;
+
+  // Try with core/colors prefix (Tokens Studio Sandbox format)
+  const coreColorsPath = `core/colors.${referencePath}`;
+  token = getTokenAtPath(tokens, coreColorsPath);
+  if (token) return coreColorsPath;
+
+  // Try with core/spacing prefix (Tokens Studio Sandbox format)
+  const coreSpacingPath = `core/spacing.${referencePath}`;
+  token = getTokenAtPath(tokens, coreSpacingPath);
+  if (token) return coreSpacingPath;
+
+  // Try with core/border prefix (Tokens Studio Sandbox format)
+  const coreBorderPath = `core/border.${referencePath}`;
+  token = getTokenAtPath(tokens, coreBorderPath);
+  if (token) return coreBorderPath;
+
+  // Try with core/elevation prefix (Tokens Studio Sandbox format)
+  const coreElevationPath = `core/elevation.${referencePath}`;
+  token = getTokenAtPath(tokens, coreElevationPath);
+  if (token) return coreElevationPath;
+
+  // Try with core typography prefixes (Tokens Studio Sandbox format)
+  const typographyPrefixes = ['core/font-family', 'core/font-size', 'core/font-weight', 'core/letter-spacing', 'core/line-height'];
+  for (const prefix of typographyPrefixes) {
+    const typePath = `${prefix}.${referencePath}`;
+    token = getTokenAtPath(tokens, typePath);
+    if (token) return typePath;
+  }
 
   // Try with Effects prefix
   const effectsPath = `Effects/Mode 1.${referencePath}`;
@@ -78,6 +107,16 @@ function findTokenPath(
   const sameCategoryPath = `${currentCategory}.${referencePath}`;
   token = getTokenAtPath(tokens, sameCategoryPath);
   if (token) return sameCategoryPath;
+
+  // Try with semantic/light prefix (Tokens Studio Sandbox format)
+  const semanticLightPath = `semantic/light.${referencePath}`;
+  token = getTokenAtPath(tokens, semanticLightPath);
+  if (token) return semanticLightPath;
+
+  // Try with semantic/dark prefix (Tokens Studio Sandbox format)
+  const semanticDarkPath = `semantic/dark.${referencePath}`;
+  token = getTokenAtPath(tokens, semanticDarkPath);
+  if (token) return semanticDarkPath;
 
   return null;
 }
