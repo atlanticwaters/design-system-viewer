@@ -509,6 +509,37 @@ function mapEffects(tokens: TokensStudioFile): TokenCategory {
 }
 
 /**
+ * Map Component token files from Tokens Studio Sandbox "components/*" paths
+ * These are individual component token files like button.json, checkbox.json, etc.
+ */
+function mapComponentFiles(tokens: TokensStudioFile): TokenCategory[] {
+  const components: TokenCategory[] = [];
+
+  // Look for keys that start with "components/"
+  for (const [key, value] of Object.entries(tokens)) {
+    if (key.startsWith('components/') && isTokenGroup(value)) {
+      // Extract component name from path like "components/button"
+      const componentName = key.replace('components/', '');
+      const category = mapGroupToCategory(
+        tokens,
+        value,
+        key,
+        componentName,
+        formatLabel(componentName)
+      );
+      if (category.tokens.length > 0 || (category.subcategories && category.subcategories.length > 0)) {
+        components.push(category);
+      }
+    }
+  }
+
+  // Sort components alphabetically
+  components.sort((a, b) => a.label.localeCompare(b.label));
+
+  return components;
+}
+
+/**
  * Map all tokens to the ParsedTokens structure
  */
 export function mapToParsedTokens(tokens: TokensStudioFile): ParsedTokens {
@@ -525,6 +556,7 @@ export function mapToParsedTokens(tokens: TokensStudioFile): ParsedTokens {
     radius: mapRadius(tokens),
     borderWidth: mapBorderWidth(tokens),
     effects: mapEffects(tokens),
+    components: mapComponentFiles(tokens),
   };
 }
 

@@ -7,6 +7,7 @@ import { SpacingTokensDisplay } from './SpacingTokensDisplay';
 import { RadiusTokensDisplay } from './RadiusTokensDisplay';
 import { BorderTokensDisplay } from './BorderTokensDisplay';
 import { ElevationTokensDisplay } from './ElevationTokensDisplay';
+import { ComponentTokensDisplay } from './ComponentTokensDisplay';
 import { RawTokenTree } from './RawTokenTree';
 import { AllTokensDisplay } from './AllTokensDisplay';
 import { TokenTableDisplay } from './TokenTableDisplay';
@@ -14,7 +15,7 @@ import { SemanticTokensDisplay } from './SemanticTokensDisplay';
 import { PairingsDisplay } from './PairingsDisplay';
 import { FONT_OPEN_SANS } from '../utils/fonts';
 
-type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'table' | 'raw';
+type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw';
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'all', label: 'Overview' },
@@ -26,6 +27,7 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'radius', label: 'Radius' },
   { id: 'border', label: 'Border' },
   { id: 'effects', label: 'Effects' },
+  { id: 'components', label: 'Components' },
   { id: 'table', label: 'Data Table' },
   { id: 'raw', label: 'Raw JSON' },
 ];
@@ -273,6 +275,9 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
           )}
           {activeSection === 'effects' && (
             <ElevationTokensDisplay effects={parsedTokens.effects} isDarkMode={isDarkMode} />
+          )}
+          {activeSection === 'components' && (
+            <ComponentTokensDisplay components={parsedTokens.components} isDarkMode={isDarkMode} />
           )}
           {activeSection === 'table' && (
             <TokenTableDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />

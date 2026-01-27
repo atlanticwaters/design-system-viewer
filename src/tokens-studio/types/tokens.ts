@@ -66,6 +66,7 @@ export interface ParsedTokens {
   radius: TokenCategory;
   borderWidth: TokenCategory;
   effects: TokenCategory;
+  components: TokenCategory[];
 }
 
 // Type guard to check if a value is a token (has $value)
