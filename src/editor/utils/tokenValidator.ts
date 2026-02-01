@@ -44,22 +44,35 @@ export function formatAsReference(path: string): string {
 }
 
 /**
- * Validate token path format
- * Valid paths use dot notation with kebab-case or camelCase segments
+ * Validate token path format (DTCG standard)
+ * Valid paths use dot notation only with kebab-case or camelCase segments
+ * NO slashes allowed - paths must be pure dot-separated
  */
 function isValidTokenPath(path: string): boolean {
-  // Allow alphanumeric, hyphens, underscores, and dots
+  // DTCG standard: no slashes allowed
+  if (path.includes('/') || path.includes('\\')) {
+    return false;
+  }
+
   // Must not start or end with a dot
   // Must not have consecutive dots
   if (!path || path.startsWith('.') || path.endsWith('.') || path.includes('..')) {
     return false;
   }
 
-  // Each segment should be valid
+  // Each segment must be valid identifier
   const segments = path.split('.');
+  // Segments can only contain letters, numbers, hyphens, and underscores
   const segmentPattern = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 
   return segments.every(segment => segmentPattern.test(segment));
+}
+
+/**
+ * Normalize a path to DTCG format (convert slashes to dots)
+ */
+function normalizePath(path: string): string {
+  return path.replace(/[\\/]/g, '.');
 }
 
 
@@ -172,27 +185,64 @@ export function validateToken(
 /**
  * Try to find a token using alternative path formats
  * Tokens may be referenced by different path patterns
+ * All paths are now normalized to DTCG dot-notation
  */
 function findTokenByAlternativePaths(
   path: string,
   allTokens: Map<string, EditableToken>
 ): EditableToken | undefined {
+  // Normalize the input path first
+  const normalizedPath = normalizePath(path);
+
   // Try exact match first
-  if (allTokens.has(path)) {
-    return allTokens.get(path);
+  if (allTokens.has(normalizedPath)) {
+    return allTokens.get(normalizedPath);
   }
 
-  // Try with common prefixes/suffixes
+  // Build list of path variations to try (all using dot notation)
   const variations = [
-    path,
-    `core.${path}`,
-    `semantic.${path}`,
-    `component.${path}`,
+    // Direct variations
+    normalizedPath,
+    `core.${normalizedPath}`,
+    `semantic.${normalizedPath}`,
+    `component.${normalizedPath}`,
+    // Tokens Studio Sandbox format - core tokens (normalized to dots)
+    `core.colors.${normalizedPath}`,
+    `core.colors.color.${normalizedPath}`,
+    `core.neutrals.color.${normalizedPath}`,
+    `core.spacing.${normalizedPath}`,
+    `core.border.${normalizedPath}`,
+    `core.border.border.width.${normalizedPath}`,
+    `core.border.border.radius.${normalizedPath}`,
+    `core.elevation.${normalizedPath}`,
+    `core.elevation.elevation.${normalizedPath}`,
+    `core.font-family.${normalizedPath}`,
+    `core.font-size.${normalizedPath}`,
+    `core.font-weight.${normalizedPath}`,
+    `core.letter-spacing.${normalizedPath}`,
+    `core.line-height.${normalizedPath}`,
+    // Semantic tokens (normalized to dots)
+    `semantic.light.${normalizedPath}`,
+    `semantic.dark.${normalizedPath}`,
+    // Legacy format (normalized to dots)
+    `Color.Default.${normalizedPath}`,
+    `Spacing.Mode 1.${normalizedPath}`,
+    `Radius.Mode 1.${normalizedPath}`,
+    `Border Width.Mode 1.${normalizedPath}`,
+    `Effects.Mode 1.${normalizedPath}`,
   ];
 
   for (const variation of variations) {
     if (allTokens.has(variation)) {
       return allTokens.get(variation);
+    }
+  }
+
+  // Also try partial matching - the reference might be a suffix of the full path
+  // e.g., "color.brand.brand-400" should match "core.colors.color.brand.brand-400"
+  for (const [tokenPath, token] of allTokens) {
+    if (tokenPath.endsWith(`.${normalizedPath}`)) {
+      return token;
     }
   }
 

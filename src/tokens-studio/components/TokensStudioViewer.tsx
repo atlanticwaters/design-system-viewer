@@ -53,6 +53,7 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
     loadFromFile,
     loadFromMultipleFiles,
     loadFromRepo,
+    loadLocalTokens,
     repoUrl,
     clear,
     setIsLoading,
@@ -212,7 +213,7 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
                 padding: '4px 8px',
                 borderRadius: 4,
               }}>
-                {fileCount} file{fileCount > 1 ? 's' : ''} from {repoUrl.replace('https://github.com/', '')}
+                {fileCount} file{fileCount > 1 ? 's' : ''} from {repoUrl === 'local' ? 'Local /tokens/' : repoUrl.replace('https://github.com/', '')}
               </span>
             )}
           </div>
@@ -222,8 +223,8 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
                 ← Hardcoded Viewer
               </button>
             )}
-            <button onClick={() => loadFromRepo()} style={buttonStyle}>
-              Reload Repo
+            <button onClick={() => repoUrl === 'local' ? loadLocalTokens() : loadFromRepo()} style={buttonStyle}>
+              {repoUrl === 'local' ? 'Reload Local' : 'Reload Repo'}
             </button>
             <button onClick={clear} style={buttonStyle}>
               Load New File

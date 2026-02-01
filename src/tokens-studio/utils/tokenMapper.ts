@@ -98,21 +98,21 @@ function mapGroupToCategory(
 }
 
 /**
- * Map Color/Default category to core palettes
- * Also checks "core/colors" and "core/neutrals" paths for Tokens Studio Sandbox format
+ * Map Color.Default category to core palettes
+ * Also checks "core.colors" and "core.neutrals" paths (DTCG normalized format)
  */
 function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
   const palettes: TokenCategory[] = [];
 
-  // Check legacy "Color/Default" path
-  const colorDefault = tokens['Color/Default'];
+  // Check legacy "Color.Default" path (normalized from Color/Default)
+  const colorDefault = tokens['Color.Default'];
   if (colorDefault) {
     for (const [paletteName, paletteValue] of Object.entries(colorDefault)) {
       if (isTokenGroup(paletteValue)) {
         const category = mapGroupToCategory(
           tokens,
           paletteValue,
-          `Color/Default.${paletteName}`,
+          `Color.Default.${paletteName}`,
           paletteName,
           formatLabel(paletteName)
         );
@@ -121,9 +121,9 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
     }
   }
 
-  // Check Tokens Studio Sandbox "core/colors" path
-  // Structure: core/colors.color.{palette-name}
-  const coreColors = tokens['core/colors'];
+  // Check DTCG "core.colors" path (normalized from core/colors)
+  // Structure: core.colors.color.{palette-name}
+  const coreColors = tokens['core.colors'];
   if (coreColors && isTokenGroup(coreColors)) {
     const colorGroup = coreColors['color'];
     if (colorGroup && isTokenGroup(colorGroup)) {
@@ -133,7 +133,7 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
           const category = mapGroupToCategory(
             tokens,
             paletteValue,
-            `core/colors.color.${paletteName}`,
+            `core.colors.color.${paletteName}`,
             paletteName,
             formatLabel(paletteName)
           );
@@ -143,9 +143,9 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
     }
   }
 
-  // Check Tokens Studio Sandbox "core/neutrals" path
-  // Structure: core/neutrals.color.{palette-name}
-  const coreNeutrals = tokens['core/neutrals'];
+  // Check DTCG "core.neutrals" path (normalized from core/neutrals)
+  // Structure: core.neutrals.color.{palette-name}
+  const coreNeutrals = tokens['core.neutrals'];
   if (coreNeutrals && isTokenGroup(coreNeutrals)) {
     const colorGroup = coreNeutrals['color'];
     if (colorGroup && isTokenGroup(colorGroup)) {
@@ -154,7 +154,7 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
           const category = mapGroupToCategory(
             tokens,
             paletteValue,
-            `core/neutrals.color.${paletteName}`,
+            `core.neutrals.color.${paletteName}`,
             paletteName,
             formatLabel(paletteName)
           );
@@ -169,10 +169,11 @@ function mapColorPalettes(tokens: TokensStudioFile): TokenCategory[] {
 
 /**
  * Map Component Tokens and Semantic Tokens for a specific mode (Light/Dark)
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Component Tokens/{mode}" (legacy)
- * - "Semantic Tokens/{mode}" (legacy)
- * - "semantic/light" or "semantic/dark" (Tokens Studio Sandbox format)
+ * - "Component Tokens.{mode}" (legacy, normalized)
+ * - "Semantic Tokens.{mode}" (legacy, normalized)
+ * - "semantic.light" or "semantic.dark" (DTCG format)
  */
 function mapComponentTokens(
   tokens: TokensStudioFile,
@@ -180,15 +181,15 @@ function mapComponentTokens(
 ): TokenCategory[] {
   const categories: TokenCategory[] = [];
 
-  // First check Component Tokens path (legacy format)
-  const componentTokens = tokens[`Component Tokens/${mode}`];
+  // First check Component Tokens path (legacy format, normalized)
+  const componentTokens = tokens[`Component Tokens.${mode}`];
   if (componentTokens) {
     for (const [categoryName, categoryValue] of Object.entries(componentTokens)) {
       if (isTokenGroup(categoryValue)) {
         const category = mapGroupToCategory(
           tokens,
           categoryValue,
-          `Component Tokens/${mode}.${categoryName}`,
+          `Component Tokens.${mode}.${categoryName}`,
           categoryName,
           formatLabel(categoryName)
         );
@@ -197,15 +198,15 @@ function mapComponentTokens(
     }
   }
 
-  // Also check Semantic Tokens path (legacy format)
-  const semanticTokens = tokens[`Semantic Tokens/${mode}`];
+  // Also check Semantic Tokens path (legacy format, normalized)
+  const semanticTokens = tokens[`Semantic Tokens.${mode}`];
   if (semanticTokens) {
     for (const [categoryName, categoryValue] of Object.entries(semanticTokens)) {
       if (isTokenGroup(categoryValue)) {
         const category = mapGroupToCategory(
           tokens,
           categoryValue,
-          `Semantic Tokens/${mode}.${categoryName}`,
+          `Semantic Tokens.${mode}.${categoryName}`,
           categoryName,
           formatLabel(categoryName)
         );
@@ -214,16 +215,16 @@ function mapComponentTokens(
     }
   }
 
-  // Check for Tokens Studio Sandbox format: "semantic/light" or "semantic/dark"
+  // Check for DTCG format: "semantic.light" or "semantic.dark"
   const sandboxMode = mode === 'Light Mode' ? 'light' : 'dark';
-  const sandboxTokens = tokens[`semantic/${sandboxMode}`];
+  const sandboxTokens = tokens[`semantic.${sandboxMode}`];
   if (sandboxTokens) {
     for (const [categoryName, categoryValue] of Object.entries(sandboxTokens)) {
       if (isTokenGroup(categoryValue)) {
         const category = mapGroupToCategory(
           tokens,
           categoryValue,
-          `semantic/${sandboxMode}.${categoryName}`,
+          `semantic.${sandboxMode}.${categoryName}`,
           categoryName,
           formatLabel(categoryName)
         );
@@ -237,32 +238,33 @@ function mapComponentTokens(
 
 /**
  * Map Typography tokens
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Typography/Default" (legacy)
- * - "core/font-family", "core/font-size", etc. (Tokens Studio Sandbox)
+ * - "Typography.Default" (legacy, normalized)
+ * - "core.font-family", "core.font-size", etc. (DTCG format)
  */
 function mapTypography(tokens: TokensStudioFile): TokenCategory {
   const subcategories: TokenCategory[] = [];
 
-  // Check legacy "Typography/Default" path
-  const typography = tokens['Typography/Default'];
-  if (typography) {
+  // Check legacy "Typography.Default" path (normalized)
+  const typography = tokens['Typography.Default'];
+  if (typography && isTokenGroup(typography)) {
     return mapGroupToCategory(
       tokens,
       typography,
-      'Typography/Default',
+      'Typography.Default',
       'typography',
       'Typography'
     );
   }
 
-  // Check Tokens Studio Sandbox paths for typography
+  // Check DTCG paths for typography
   const typographyPaths = [
-    { key: 'core/font-family', label: 'Font Family' },
-    { key: 'core/font-size', label: 'Font Size' },
-    { key: 'core/font-weight', label: 'Font Weight' },
-    { key: 'core/letter-spacing', label: 'Letter Spacing' },
-    { key: 'core/line-height', label: 'Line Height' },
+    { key: 'core.font-family', label: 'Font Family' },
+    { key: 'core.font-size', label: 'Font Size' },
+    { key: 'core.font-weight', label: 'Font Weight' },
+    { key: 'core.letter-spacing', label: 'Letter Spacing' },
+    { key: 'core.line-height', label: 'Line Height' },
   ];
 
   for (const { key, label } of typographyPaths) {
@@ -285,32 +287,33 @@ function mapTypography(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Spacing tokens
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Spacing/Mode 1" (legacy)
- * - "core/spacing" (Tokens Studio Sandbox)
+ * - "Spacing.Mode 1" (legacy, normalized)
+ * - "core.spacing" (DTCG format)
  */
 function mapSpacing(tokens: TokensStudioFile): TokenCategory {
   const resolvedTokens: ResolvedToken[] = [];
 
-  // Check legacy "Spacing/Mode 1" path
-  const spacing = tokens['Spacing/Mode 1'];
+  // Check legacy "Spacing.Mode 1" path (normalized)
+  const spacing = tokens['Spacing.Mode 1'];
   if (spacing) {
     for (const [key, value] of Object.entries(spacing)) {
       if (isToken(value)) {
         try {
-          const resolved = resolveToken(tokens, `Spacing/Mode 1.${key}`);
+          const resolved = resolveToken(tokens, `Spacing.Mode 1.${key}`);
           resolvedTokens.push(resolved);
         } catch (error) {
-          console.warn(`Failed to resolve Spacing/Mode 1.${key}:`, error);
+          console.warn(`Failed to resolve Spacing.Mode 1.${key}:`, error);
         }
       }
     }
   }
 
-  // Check Tokens Studio Sandbox "core/spacing" path
-  const coreSpacing = tokens['core/spacing'];
+  // Check DTCG "core.spacing" path
+  const coreSpacing = tokens['core.spacing'];
   if (coreSpacing && isTokenGroup(coreSpacing)) {
-    const category = mapGroupToCategory(tokens, coreSpacing, 'core/spacing', 'spacing', 'Spacing');
+    const category = mapGroupToCategory(tokens, coreSpacing, 'core.spacing', 'spacing', 'Spacing');
     resolvedTokens.push(...category.tokens);
     if (category.subcategories) {
       for (const sub of category.subcategories) {
@@ -335,30 +338,31 @@ function mapSpacing(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Radius tokens
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Radius/Mode 1" (legacy)
- * - "core/border.border.radius" (Tokens Studio Sandbox)
+ * - "Radius.Mode 1" (legacy, normalized)
+ * - "core.border.border.radius" (DTCG format)
  */
 function mapRadius(tokens: TokensStudioFile): TokenCategory {
   const resolvedTokens: ResolvedToken[] = [];
 
-  // Check legacy "Radius/Mode 1" path
-  const radius = tokens['Radius/Mode 1'];
+  // Check legacy "Radius.Mode 1" path (normalized)
+  const radius = tokens['Radius.Mode 1'];
   if (radius) {
     for (const [key, value] of Object.entries(radius)) {
       if (isToken(value)) {
         try {
-          const resolved = resolveToken(tokens, `Radius/Mode 1.${key}`);
+          const resolved = resolveToken(tokens, `Radius.Mode 1.${key}`);
           resolvedTokens.push(resolved);
         } catch (error) {
-          console.warn(`Failed to resolve Radius/Mode 1.${key}:`, error);
+          console.warn(`Failed to resolve Radius.Mode 1.${key}:`, error);
         }
       }
     }
   }
 
-  // Check Tokens Studio Sandbox "core/border" path for radius
-  const coreBorder = tokens['core/border'];
+  // Check DTCG "core.border" path for radius
+  const coreBorder = tokens['core.border'];
   if (coreBorder && isTokenGroup(coreBorder)) {
     const borderGroup = coreBorder['border'];
     if (borderGroup && isTokenGroup(borderGroup)) {
@@ -367,10 +371,10 @@ function mapRadius(tokens: TokensStudioFile): TokenCategory {
         for (const [key, value] of Object.entries(radiusGroup)) {
           if (isToken(value)) {
             try {
-              const resolved = resolveToken(tokens, `core/border.border.radius.${key}`);
+              const resolved = resolveToken(tokens, `core.border.border.radius.${key}`);
               resolvedTokens.push(resolved);
             } catch (error) {
-              console.warn(`Failed to resolve core/border.border.radius.${key}:`, error);
+              console.warn(`Failed to resolve core.border.border.radius.${key}:`, error);
             }
           }
         }
@@ -394,30 +398,31 @@ function mapRadius(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Border Width tokens
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Border Width/Mode 1" (legacy)
- * - "core/border.border.width" (Tokens Studio Sandbox)
+ * - "Border Width.Mode 1" (legacy, normalized)
+ * - "core.border.border.width" (DTCG format)
  */
 function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
   const resolvedTokens: ResolvedToken[] = [];
 
-  // Check legacy "Border Width/Mode 1" path
-  const borderWidth = tokens['Border Width/Mode 1'];
+  // Check legacy "Border Width.Mode 1" path (normalized)
+  const borderWidth = tokens['Border Width.Mode 1'];
   if (borderWidth) {
     for (const [key, value] of Object.entries(borderWidth)) {
       if (isToken(value)) {
         try {
-          const resolved = resolveToken(tokens, `Border Width/Mode 1.${key}`);
+          const resolved = resolveToken(tokens, `Border Width.Mode 1.${key}`);
           resolvedTokens.push(resolved);
         } catch (error) {
-          console.warn(`Failed to resolve Border Width/Mode 1.${key}:`, error);
+          console.warn(`Failed to resolve Border Width.Mode 1.${key}:`, error);
         }
       }
     }
   }
 
-  // Check Tokens Studio Sandbox "core/border" path for width
-  const coreBorder = tokens['core/border'];
+  // Check DTCG "core.border" path for width
+  const coreBorder = tokens['core.border'];
   if (coreBorder && isTokenGroup(coreBorder)) {
     const borderGroup = coreBorder['border'];
     if (borderGroup && isTokenGroup(borderGroup)) {
@@ -426,10 +431,10 @@ function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
         for (const [key, value] of Object.entries(widthGroup)) {
           if (isToken(value)) {
             try {
-              const resolved = resolveToken(tokens, `core/border.border.width.${key}`);
+              const resolved = resolveToken(tokens, `core.border.border.width.${key}`);
               resolvedTokens.push(resolved);
             } catch (error) {
-              console.warn(`Failed to resolve core/border.border.width.${key}:`, error);
+              console.warn(`Failed to resolve core.border.border.width.${key}:`, error);
             }
           }
         }
@@ -453,32 +458,33 @@ function mapBorderWidth(tokens: TokensStudioFile): TokenCategory {
 
 /**
  * Map Effects tokens
+ * All paths are DTCG-compliant (dot-separated)
  * Checks multiple path patterns:
- * - "Effects/Mode 1" (legacy)
- * - "core/elevation.elevation" (Tokens Studio Sandbox)
+ * - "Effects.Mode 1" (legacy, normalized)
+ * - "core.elevation.elevation" (DTCG format)
  */
 function mapEffects(tokens: TokensStudioFile): TokenCategory {
   const resolvedTokens: ResolvedToken[] = [];
   const subcategories: TokenCategory[] = [];
 
-  // Check legacy "Effects/Mode 1" path
-  const effects = tokens['Effects/Mode 1'];
+  // Check legacy "Effects.Mode 1" path (normalized)
+  const effects = tokens['Effects.Mode 1'];
   if (effects) {
     for (const [key, value] of Object.entries(effects)) {
       if (isToken(value)) {
         try {
-          const resolved = resolveToken(tokens, `Effects/Mode 1.${key}`);
+          const resolved = resolveToken(tokens, `Effects.Mode 1.${key}`);
           resolvedTokens.push(resolved);
         } catch (error) {
-          console.warn(`Failed to resolve Effects/Mode 1.${key}:`, error);
+          console.warn(`Failed to resolve Effects.Mode 1.${key}:`, error);
         }
       }
     }
   }
 
-  // Check Tokens Studio Sandbox "core/elevation" path
-  // Structure: core/elevation.elevation.{category}
-  const coreElevation = tokens['core/elevation'];
+  // Check DTCG "core.elevation" path
+  // Structure: core.elevation.elevation.{category}
+  const coreElevation = tokens['core.elevation'];
   if (coreElevation && isTokenGroup(coreElevation)) {
     const elevationGroup = coreElevation['elevation'];
     if (elevationGroup && isTokenGroup(elevationGroup)) {
@@ -488,7 +494,7 @@ function mapEffects(tokens: TokensStudioFile): TokenCategory {
           const category = mapGroupToCategory(
             tokens,
             categoryValue,
-            `core/elevation.elevation.${categoryName}`,
+            `core.elevation.elevation.${categoryName}`,
             categoryName,
             formatLabel(categoryName)
           );
@@ -509,17 +515,24 @@ function mapEffects(tokens: TokensStudioFile): TokenCategory {
 }
 
 /**
- * Map Component token files from Tokens Studio Sandbox "components/*" paths
+ * Map Component token files from DTCG "components.*" or "component.*" paths
  * These are individual component token files like button.json, checkbox.json, etc.
+ * All paths are DTCG-compliant (dot-separated)
  */
 function mapComponentFiles(tokens: TokensStudioFile): TokenCategory[] {
   const components: TokenCategory[] = [];
 
-  // Look for keys that start with "components/"
+  // Look for keys that start with "components." or "component." (handles both plural and singular)
   for (const [key, value] of Object.entries(tokens)) {
-    if (key.startsWith('components/') && isTokenGroup(value)) {
-      // Extract component name from path like "components/button"
-      const componentName = key.replace('components/', '');
+    let componentName: string | null = null;
+
+    if (key.startsWith('components.')) {
+      componentName = key.replace('components.', '');
+    } else if (key.startsWith('component.')) {
+      componentName = key.replace('component.', '');
+    }
+
+    if (componentName && isTokenGroup(value)) {
       const category = mapGroupToCategory(
         tokens,
         value,

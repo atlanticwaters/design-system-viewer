@@ -93,8 +93,57 @@ export function ReferenceSelector({
     ? extractReferencePath(value)
     : '';
 
-  // Find current referenced token
-  const currentToken = currentPath ? allTokens.get(currentPath) : undefined;
+  // Find current referenced token - try various prefixes since references
+  // use short form (e.g., "system.text...") but allTokens uses full paths
+  // (e.g., "semantic.light.system.text...")
+  const currentToken = useMemo(() => {
+    if (!currentPath) return undefined;
+
+    // Try exact match first
+    const exact = allTokens.get(currentPath);
+    if (exact) return exact;
+
+    // Try common prefixes for semantic/system references
+    const prefixes = [
+      'semantic.light.',
+      'semantic.dark.',
+      'core.colors.',
+      'core.colors.color.',
+      'core.neutrals.color.',
+      'core.spacing.spacing.',
+      'core.border.border.',
+      'core.elevation.elevation.',
+      'component.',
+    ];
+
+    for (const prefix of prefixes) {
+      const prefixed = allTokens.get(prefix + currentPath);
+      if (prefixed) return prefixed;
+    }
+
+    // Try handling color/spacing/border prefixes like {color.brand.brand-300}
+    const segments = currentPath.split('.');
+    if (segments.length >= 2) {
+      const first = segments[0];
+      const rest = segments.slice(1).join('.');
+
+      if (first === 'color') {
+        const colorPrefixes = ['core.colors.color.', 'core.neutrals.color.'];
+        for (const cp of colorPrefixes) {
+          const found = allTokens.get(cp + rest);
+          if (found) return found;
+        }
+      } else if (first === 'spacing') {
+        const found = allTokens.get('core.spacing.spacing.' + rest);
+        if (found) return found;
+      } else if (first === 'border') {
+        const found = allTokens.get('core.border.border.' + rest);
+        if (found) return found;
+      }
+    }
+
+    return undefined;
+  }, [currentPath, allTokens]);
 
   const handleSelect = useCallback((token: EditableToken) => {
     onChange(formatAsReference(token.path));

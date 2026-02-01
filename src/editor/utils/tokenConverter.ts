@@ -44,40 +44,46 @@ export function resolvedMapToEditableMap(
 
 /**
  * Infer the layer from a token path
- * This is a heuristic based on path patterns
+ * All paths are now DTCG-compliant (dot-separated only)
  */
 function inferLayerFromPath(path: string): TokenLayer {
   const lowerPath = path.toLowerCase();
 
-  // Check for core/primitive patterns
+  // Check for semantic patterns FIRST (more specific)
+  // DTCG format: semantic.light.*, semantic.dark.*
   if (
-    lowerPath.includes('color/default') ||
-    lowerPath.includes('typography/default') ||
-    lowerPath.includes('spacing/') ||
-    lowerPath.includes('radius/') ||
-    lowerPath.includes('border width/') ||
-    lowerPath.includes('/core') ||
-    lowerPath.includes('/primitives')
-  ) {
-    return 'core';
-  }
-
-  // Check for semantic patterns
-  if (
-    lowerPath.includes('/semantic') ||
+    lowerPath.startsWith('semantic.') ||
+    lowerPath.includes('.semantic.') ||
     lowerPath.includes('light mode') ||
-    lowerPath.includes('dark mode') ||
-    lowerPath.startsWith('system.')
+    lowerPath.includes('dark mode')
   ) {
     return 'semantic';
   }
 
   // Check for component patterns
+  // DTCG format: components.*
   if (
-    lowerPath.includes('component') ||
+    lowerPath.startsWith('components.') ||
+    lowerPath.includes('.components.') ||
+    lowerPath.includes('component tokens') ||
     lowerPath.startsWith('component.')
   ) {
     return 'component';
+  }
+
+  // Check for core/primitive patterns
+  // DTCG format: core.*
+  if (
+    lowerPath.startsWith('core.') ||
+    lowerPath.includes('.core.') ||
+    lowerPath.includes('color.default') ||
+    lowerPath.includes('typography.default') ||
+    lowerPath.includes('.spacing.') ||
+    lowerPath.includes('.radius.') ||
+    lowerPath.includes('.border.') ||
+    lowerPath.includes('.primitives')
+  ) {
+    return 'core';
   }
 
   // Default to core for raw values
