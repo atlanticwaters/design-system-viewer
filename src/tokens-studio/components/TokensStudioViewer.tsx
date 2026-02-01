@@ -13,12 +13,14 @@ import { AllTokensDisplay } from './AllTokensDisplay';
 import { TokenTableDisplay } from './TokenTableDisplay';
 import { SemanticTokensDisplay } from './SemanticTokensDisplay';
 import { PairingsDisplay } from './PairingsDisplay';
+import { TokenEditorView } from '../../editor/components/TokenEditorView';
 import { FONT_OPEN_SANS } from '../utils/fonts';
 
-type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw';
+type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw' | 'editor';
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'all', label: 'Overview' },
+  { id: 'editor', label: 'Editor' },
   { id: 'semantic', label: 'Semantic' },
   { id: 'pairings', label: 'Pairings' },
   { id: 'colors', label: 'Colors' },
@@ -39,6 +41,7 @@ interface TokensStudioViewerProps {
 export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
   const {
     parsedTokens,
+    resolvedTokens,
     tokensFile,
     loadedFiles,
     isLoading,
@@ -247,6 +250,9 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
         <div key={activeSection} className="tab-content">
           {activeSection === 'all' && (
             <AllTokensDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />
+          )}
+          {activeSection === 'editor' && (
+            <TokenEditorView resolvedTokens={resolvedTokens} isDarkMode={isDarkMode} />
           )}
           {activeSection === 'semantic' && (
             <SemanticTokensDisplay
