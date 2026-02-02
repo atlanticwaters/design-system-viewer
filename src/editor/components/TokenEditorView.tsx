@@ -7,27 +7,48 @@ import React, { useMemo, useState, useCallback } from 'react';
 import type { ResolvedToken } from '../../tokens-studio/types/tokens';
 import type { EditableToken, TokenLayer } from '../types/editor';
 import { useTokenEditor } from '../hooks/useTokenEditor';
+import { useGitHubAuth } from '../hooks/useGitHubAuth';
 import { EditorPanel, EditorBackdrop } from './EditorPanel';
 import { ValidationIndicator } from './ValidationStatus';
 import { ColorSwatch } from './ColorPicker';
 import { CreateTokenDialog } from './CreateTokenDialog';
+import { AuthButton } from './GitHub/AuthButton';
+import { PendingChanges } from './GitHub/PendingChanges';
+import { CommitDialog } from './GitHub/CommitDialog';
 import { resolvedMapToEditableMap, getTokenSummaryByLayer } from '../utils/tokenConverter';
 import { validateToken } from '../utils/tokenValidator';
 import { FONT_OPEN_SANS, FONT_THD } from '../../tokens-studio/utils/fonts';
+import {
+  commitMultipleFiles,
+  createBranch,
+  createPullRequest,
+} from '../../tokens-studio/utils/githubApi';
 
 interface TokenEditorViewProps {
   resolvedTokens: Map<string, ResolvedToken>;
   isDarkMode?: boolean;
+  repoOwner?: string;
+  repoName?: string;
+  originalFiles?: Map<string, string>;
 }
 
 export function TokenEditorView({
   resolvedTokens,
   isDarkMode = false,
+  repoOwner,
+  repoName,
+  originalFiles = new Map(),
 }: TokenEditorViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [layerFilter, setLayerFilter] = useState<TokenLayer | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<string | 'all'>('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showCommitDialog, setShowCommitDialog] = useState(false);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [commitError, setCommitError] = useState<string | null>(null);
+
+  // GitHub authentication
+  const gitHubAuth = useGitHubAuth(repoOwner, repoName);
 
   // Convert ResolvedTokens to EditableTokens
   const allTokens = useMemo(() => {
@@ -98,6 +119,64 @@ export function TokenEditorView({
   const handleTokenClick = useCallback((token: EditableToken) => {
     editor.selectToken(token);
   }, [editor]);
+
+  // Handle committing changes to GitHub
+  const handleCommit = useCallback(async (
+    message: string,
+    createPR: boolean,
+    prTitle?: string
+  ) => {
+    const auth = gitHubAuth.getAuth();
+    if (!auth || !repoOwner || !repoName) {
+      setCommitError('Missing authentication or repository information');
+      return;
+    }
+
+    setIsCommitting(true);
+    setCommitError(null);
+
+    try {
+      const modifiedFiles = editor.pendingChanges.getModifiedFiles(originalFiles);
+      const fileUpdates = modifiedFiles.map(f => ({
+        path: f.path,
+        content: f.content,
+      }));
+
+      if (fileUpdates.length === 0) {
+        setCommitError('No changes to commit');
+        setIsCommitting(false);
+        return;
+      }
+
+      if (createPR) {
+        // Create branch, commit, then create PR
+        const branchName = `token-updates-${Date.now()}`;
+        await createBranch(repoOwner, repoName, branchName, 'main', auth);
+        await commitMultipleFiles(repoOwner, repoName, fileUpdates, message, auth, branchName);
+        const pr = await createPullRequest(
+          repoOwner,
+          repoName,
+          prTitle || 'Update design tokens',
+          message,
+          branchName,
+          'main',
+          auth
+        );
+        console.log('Created PR:', pr.url);
+      } else {
+        // Direct commit to main
+        const result = await commitMultipleFiles(repoOwner, repoName, fileUpdates, message, auth);
+        console.log('Committed:', result.url);
+      }
+
+      editor.pendingChanges.clearChanges();
+      setShowCommitDialog(false);
+    } catch (err) {
+      setCommitError(err instanceof Error ? err.message : 'Failed to commit changes');
+    } finally {
+      setIsCommitting(false);
+    }
+  }, [gitHubAuth, repoOwner, repoName, originalFiles, editor.pendingChanges]);
 
   const containerStyle: React.CSSProperties = {
     padding: 24,
@@ -223,7 +302,44 @@ export function TokenEditorView({
             <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
             Add Token
           </button>
+
+          {/* GitHub Auth Button */}
+          <AuthButton
+            isAuthenticated={gitHubAuth.isAuthenticated}
+            isLoading={gitHubAuth.isLoading}
+            user={gitHubAuth.user}
+            canWrite={gitHubAuth.canWrite}
+            error={gitHubAuth.error}
+            onLogin={gitHubAuth.login}
+            onLogout={gitHubAuth.logout}
+            isDarkMode={isDarkMode}
+          />
         </div>
+
+        {/* Pending Changes */}
+        {editor.pendingChanges.hasChanges && (
+          <div style={{ marginBottom: 16 }}>
+            <PendingChanges
+              changes={editor.pendingChanges.changes}
+              onDiscardChange={editor.pendingChanges.removeChange}
+              onDiscardAll={editor.pendingChanges.clearChanges}
+              onCommit={() => setShowCommitDialog(true)}
+              isDarkMode={isDarkMode}
+              disabled={!repoOwner || !repoName || isCommitting}
+            />
+            {!repoOwner && editor.pendingChanges.hasChanges && (
+              <p
+                style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                }}
+              >
+                Loading tokens from local files. To commit changes, load from a GitHub repository.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Token list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -297,6 +413,21 @@ export function TokenEditorView({
           }}
           onClose={() => setShowCreateDialog(false)}
           isDarkMode={isDarkMode}
+        />
+      )}
+
+      {/* Commit dialog */}
+      {showCommitDialog && (
+        <CommitDialog
+          changes={editor.pendingChanges.changes}
+          onCommit={handleCommit}
+          onClose={() => {
+            setShowCommitDialog(false);
+            setCommitError(null);
+          }}
+          isDarkMode={isDarkMode}
+          isAuthenticated={gitHubAuth.isAuthenticated}
+          username={gitHubAuth.user?.login}
         />
       )}
     </>
