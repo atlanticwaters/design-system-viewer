@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTokensStudio } from '../hooks/useTokensStudio';
 import { TokenInput } from './TokenInput';
 import { ColorTokensDisplay } from './ColorTokensDisplay';
@@ -13,12 +13,15 @@ import { AllTokensDisplay } from './AllTokensDisplay';
 import { TokenTableDisplay } from './TokenTableDisplay';
 import { SemanticTokensDisplay } from './SemanticTokensDisplay';
 import { PairingsDisplay } from './PairingsDisplay';
+import { TokenEditorView } from '../../editor/components/TokenEditorView';
 import { FONT_OPEN_SANS } from '../utils/fonts';
+import { parseGitHubUrl } from '../utils/githubApi';
 
-type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw';
+type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw' | 'editor';
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'all', label: 'Overview' },
+  { id: 'editor', label: 'Editor' },
   { id: 'semantic', label: 'Semantic' },
   { id: 'pairings', label: 'Pairings' },
   { id: 'colors', label: 'Colors' },
@@ -39,6 +42,7 @@ interface TokensStudioViewerProps {
 export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
   const {
     parsedTokens,
+    resolvedTokens,
     tokensFile,
     loadedFiles,
     isLoading,
@@ -50,6 +54,7 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
     loadFromFile,
     loadFromMultipleFiles,
     loadFromRepo,
+    loadLocalTokens,
     repoUrl,
     clear,
     setIsLoading,
@@ -57,6 +62,21 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
   } = useTokensStudio({ autoLoad: true });
 
   const [activeSection, setActiveSection] = useState<Section>('all');
+
+  // Parse repo info from URL for GitHub integration
+  const repoInfo = useMemo(() => {
+    if (repoUrl === 'local') return null;
+    return parseGitHubUrl(repoUrl);
+  }, [repoUrl]);
+
+  // Build original files map for the editor (needed for commit diffs)
+  const originalFiles = useMemo(() => {
+    const files = new Map<string, string>();
+    for (const file of loadedFiles) {
+      files.set(file.path, file.content);
+    }
+    return files;
+  }, [loadedFiles]);
 
   // If no tokens loaded, show input UI
   if (!parsedTokens || !tokensFile) {
@@ -209,7 +229,7 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
                 padding: '4px 8px',
                 borderRadius: 4,
               }}>
-                {fileCount} file{fileCount > 1 ? 's' : ''} from {repoUrl.replace('https://github.com/', '')}
+                {fileCount} file{fileCount > 1 ? 's' : ''} from {repoUrl === 'local' ? 'Local /tokens/' : repoUrl.replace('https://github.com/', '')}
               </span>
             )}
           </div>
@@ -219,8 +239,8 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
                 ← Hardcoded Viewer
               </button>
             )}
-            <button onClick={() => loadFromRepo()} style={buttonStyle}>
-              Reload Repo
+            <button onClick={() => repoUrl === 'local' ? loadLocalTokens() : loadFromRepo()} style={buttonStyle}>
+              {repoUrl === 'local' ? 'Reload Local' : 'Reload Repo'}
             </button>
             <button onClick={clear} style={buttonStyle}>
               Load New File
@@ -247,6 +267,15 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
         <div key={activeSection} className="tab-content">
           {activeSection === 'all' && (
             <AllTokensDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />
+          )}
+          {activeSection === 'editor' && (
+            <TokenEditorView
+              resolvedTokens={resolvedTokens}
+              isDarkMode={isDarkMode}
+              repoOwner={repoInfo?.owner}
+              repoName={repoInfo?.repo}
+              originalFiles={originalFiles}
+            />
           )}
           {activeSection === 'semantic' && (
             <SemanticTokensDisplay

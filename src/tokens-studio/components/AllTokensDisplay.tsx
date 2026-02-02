@@ -217,19 +217,19 @@ function ColorPaletteSection({
   isDarkMode: boolean;
 }) {
   // Group colors by their palette name
-  // Handles both legacy "Color/Default.palette.shade" and new "core/colors.color.palette.shade" paths
+  // Handles both legacy "Color.Default.palette.shade" and DTCG "core.colors.color.palette.shade" paths
   const grouped = useMemo(() => {
     const groups: Record<string, ResolvedToken[]> = {};
     for (const token of tokens) {
       const parts = token.path.split('.');
       let category: string;
 
-      // Handle different path structures
-      if (token.path.includes('core/colors.color.') || token.path.includes('core/neutrals.color.')) {
-        // New structure: "core/colors.color.brand.brand-025" -> "brand"
-        category = parts.length > 2 ? parts[2] : parts[1];
+      // Handle different path structures (all normalized to dots)
+      if (token.path.includes('core.colors.color.') || token.path.includes('core.neutrals.color.')) {
+        // DTCG structure: "core.colors.color.brand.brand-025" -> "brand"
+        category = parts.length > 3 ? parts[3] : parts[2];
       } else {
-        // Legacy structure: "Color/Default.brand.brand-025" -> "brand"
+        // Legacy structure: "Color.Default.brand.brand-025" -> "brand"
         category = parts.length > 1 ? parts[1] : parts[0];
       }
 
@@ -362,11 +362,11 @@ export function AllTokensDisplay({ parsedTokens, isDarkMode }: AllTokensDisplayP
   ), 1);
 
   // Get core colors (not semantic/component tokens)
-  // Support both legacy "Color/Default" and new "core/colors" paths
+  // Support both legacy "Color.Default" and DTCG "core.colors" paths (all normalized to dots)
   const coreColors = stats.colors.filter(t =>
-    t.path.includes('Color/Default') ||
-    t.path.includes('core/colors') ||
-    t.path.includes('core/neutrals')
+    t.path.includes('Color.Default') ||
+    t.path.includes('core.colors') ||
+    t.path.includes('core.neutrals')
   );
 
   // Get semantic token pairs for preview

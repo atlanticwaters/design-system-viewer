@@ -37,9 +37,7 @@ export function inferTokenType(value: string | number): TokenType {
 
 /**
  * Resolve token references in the tokens file
- * Handles the special case where references in Component Tokens
- * reference tokens in Color/Default without the category prefix
- * Also handles Tokens Studio Sandbox format (core/colors, semantic/light, etc.)
+ * All paths are now DTCG-compliant (dot-separated only)
  */
 function findTokenPath(
   tokens: TokensStudioFile,
@@ -50,71 +48,81 @@ function findTokenPath(
   let token = getTokenAtPath(tokens, referencePath);
   if (token) return referencePath;
 
-  // Try with Color/Default prefix (common pattern in Component Tokens)
-  const colorPath = `Color/Default.${referencePath}`;
+  // Try with Color.Default prefix (legacy format, normalized)
+  const colorPath = `Color.Default.${referencePath}`;
   token = getTokenAtPath(tokens, colorPath);
   if (token) return colorPath;
 
-  // Try with core/colors prefix (Tokens Studio Sandbox format)
-  const coreColorsPath = `core/colors.${referencePath}`;
+  // Try with core.colors prefix (DTCG format)
+  const coreColorsPath = `core.colors.${referencePath}`;
   token = getTokenAtPath(tokens, coreColorsPath);
   if (token) return coreColorsPath;
 
-  // Try with core/colors.color prefix (nested color structure)
-  const coreColorsColorPath = `core/colors.color.${referencePath}`;
+  // Try with core.colors.color prefix (nested color structure)
+  const coreColorsColorPath = `core.colors.color.${referencePath}`;
   token = getTokenAtPath(tokens, coreColorsColorPath);
   if (token) return coreColorsColorPath;
 
-  // Try with core/neutrals.color prefix (neutral colors)
-  const coreNeutralsPath = `core/neutrals.color.${referencePath}`;
+  // Try with core.neutrals.color prefix (neutral colors)
+  const coreNeutralsPath = `core.neutrals.color.${referencePath}`;
   token = getTokenAtPath(tokens, coreNeutralsPath);
   if (token) return coreNeutralsPath;
 
-  // Try with core/spacing prefix (Tokens Studio Sandbox format)
-  const coreSpacingPath = `core/spacing.${referencePath}`;
+  // Try with core.spacing prefix (DTCG format)
+  const coreSpacingPath = `core.spacing.${referencePath}`;
   token = getTokenAtPath(tokens, coreSpacingPath);
   if (token) return coreSpacingPath;
 
-  // Try with core/border prefix (Tokens Studio Sandbox format)
-  const coreBorderPath = `core/border.${referencePath}`;
+  // Try with core.spacing.spacing prefix (nested spacing structure)
+  const coreSpacingNestedPath = `core.spacing.spacing.${referencePath}`;
+  token = getTokenAtPath(tokens, coreSpacingNestedPath);
+  if (token) return coreSpacingNestedPath;
+
+  // Try with core.border prefix (DTCG format)
+  const coreBorderPath = `core.border.${referencePath}`;
   token = getTokenAtPath(tokens, coreBorderPath);
   if (token) return coreBorderPath;
 
-  // Try with core/elevation prefix (Tokens Studio Sandbox format)
-  const coreElevationPath = `core/elevation.${referencePath}`;
+  // Try with core.border.border prefix (nested border structure)
+  const coreBorderNestedPath = `core.border.border.${referencePath}`;
+  token = getTokenAtPath(tokens, coreBorderNestedPath);
+  if (token) return coreBorderNestedPath;
+
+  // Try with core.elevation prefix (DTCG format)
+  const coreElevationPath = `core.elevation.${referencePath}`;
   token = getTokenAtPath(tokens, coreElevationPath);
   if (token) return coreElevationPath;
 
-  // Try with core/elevation.elevation prefix (nested elevation structure)
-  const coreElevationNestedPath = `core/elevation.elevation.${referencePath}`;
+  // Try with core.elevation.elevation prefix (nested elevation structure)
+  const coreElevationNestedPath = `core.elevation.elevation.${referencePath}`;
   token = getTokenAtPath(tokens, coreElevationNestedPath);
   if (token) return coreElevationNestedPath;
 
-  // Try with core typography prefixes (Tokens Studio Sandbox format)
-  const typographyPrefixes = ['core/font-family', 'core/font-size', 'core/font-weight', 'core/letter-spacing', 'core/line-height'];
+  // Try with core typography prefixes (DTCG format)
+  const typographyPrefixes = ['core.font-family', 'core.font-size', 'core.font-weight', 'core.letter-spacing', 'core.line-height'];
   for (const prefix of typographyPrefixes) {
     const typePath = `${prefix}.${referencePath}`;
     token = getTokenAtPath(tokens, typePath);
     if (token) return typePath;
   }
 
-  // Try with Effects prefix
-  const effectsPath = `Effects/Mode 1.${referencePath}`;
+  // Try with Effects prefix (legacy format, normalized)
+  const effectsPath = `Effects.Mode 1.${referencePath}`;
   token = getTokenAtPath(tokens, effectsPath);
   if (token) return effectsPath;
 
-  // Try with Spacing prefix
-  const spacingPath = `Spacing/Mode 1.${referencePath}`;
+  // Try with Spacing prefix (legacy format, normalized)
+  const spacingPath = `Spacing.Mode 1.${referencePath}`;
   token = getTokenAtPath(tokens, spacingPath);
   if (token) return spacingPath;
 
-  // Try with Radius prefix
-  const radiusPath = `Radius/Mode 1.${referencePath}`;
+  // Try with Radius prefix (legacy format, normalized)
+  const radiusPath = `Radius.Mode 1.${referencePath}`;
   token = getTokenAtPath(tokens, radiusPath);
   if (token) return radiusPath;
 
-  // Try with Border Width prefix
-  const borderPath = `Border Width/Mode 1.${referencePath}`;
+  // Try with Border Width prefix (legacy format, normalized)
+  const borderPath = `Border Width.Mode 1.${referencePath}`;
   token = getTokenAtPath(tokens, borderPath);
   if (token) return borderPath;
 
@@ -123,15 +131,52 @@ function findTokenPath(
   token = getTokenAtPath(tokens, sameCategoryPath);
   if (token) return sameCategoryPath;
 
-  // Try with semantic/light prefix (Tokens Studio Sandbox format)
-  const semanticLightPath = `semantic/light.${referencePath}`;
+  // Try with semantic.light prefix (DTCG format)
+  const semanticLightPath = `semantic.light.${referencePath}`;
   token = getTokenAtPath(tokens, semanticLightPath);
   if (token) return semanticLightPath;
 
-  // Try with semantic/dark prefix (Tokens Studio Sandbox format)
-  const semanticDarkPath = `semantic/dark.${referencePath}`;
+  // Try with semantic.dark prefix (DTCG format)
+  const semanticDarkPath = `semantic.dark.${referencePath}`;
   token = getTokenAtPath(tokens, semanticDarkPath);
   if (token) return semanticDarkPath;
+
+  // Try with component prefix (for component-to-component references)
+  const componentPath = `component.${referencePath}`;
+  token = getTokenAtPath(tokens, componentPath);
+  if (token) return componentPath;
+
+  // Handle references like {color.brand.brand-400} → core.colors.color.brand.brand-400
+  // Extract the first segment and try various prefixes
+  const segments = referencePath.split('.');
+  if (segments.length >= 2) {
+    const firstSegment = segments[0];
+    const restOfPath = segments.slice(1).join('.');
+
+    // Color references: {color.brand.brand-400}
+    if (firstSegment === 'color') {
+      const colorVariations = [
+        `core.colors.color.${restOfPath}`,
+        `core.neutrals.color.${restOfPath}`,
+      ];
+      for (const variation of colorVariations) {
+        token = getTokenAtPath(tokens, variation);
+        if (token) return variation;
+      }
+    }
+
+    // Spacing references: {spacing.spacing-9}
+    if (firstSegment === 'spacing') {
+      token = getTokenAtPath(tokens, `core.spacing.spacing.${restOfPath}`);
+      if (token) return `core.spacing.spacing.${restOfPath}`;
+    }
+
+    // Border references
+    if (firstSegment === 'border') {
+      token = getTokenAtPath(tokens, `core.border.border.${restOfPath}`);
+      if (token) return `core.border.border.${restOfPath}`;
+    }
+  }
 
   return null;
 }

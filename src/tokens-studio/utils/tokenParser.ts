@@ -66,6 +66,7 @@ export function getAllTokenPaths(tokens: TokensStudioFile): string[] {
 
 /**
  * Navigate to a specific token by dot-notation path
+ * Handles category keys that contain dots (e.g., 'core.colors')
  */
 export function getTokenAtPath(
   tokens: TokensStudioFile,
@@ -73,12 +74,35 @@ export function getTokenAtPath(
 ): BaseToken | null {
   const parts = path.split('.');
   let current: unknown = tokens;
+  let i = 0;
 
-  for (const part of parts) {
+  while (i < parts.length) {
     if (typeof current !== 'object' || current === null) {
       return null;
     }
-    current = (current as Record<string, unknown>)[part];
+
+    const obj = current as Record<string, unknown>;
+
+    // First try the simple key
+    if (parts[i] in obj) {
+      current = obj[parts[i]];
+      i++;
+    } else {
+      // Try progressively longer compound keys (for keys with dots like 'core.colors')
+      let found = false;
+      for (let j = i + 1; j <= parts.length; j++) {
+        const compoundKey = parts.slice(i, j).join('.');
+        if (compoundKey in obj) {
+          current = obj[compoundKey];
+          i = j;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return null;
+      }
+    }
   }
 
   if (isToken(current)) {
@@ -90,6 +114,7 @@ export function getTokenAtPath(
 
 /**
  * Get a token group at a specific path
+ * Handles category keys that contain dots (e.g., 'core.colors')
  */
 export function getGroupAtPath(
   tokens: TokensStudioFile,
@@ -97,12 +122,35 @@ export function getGroupAtPath(
 ): TokenGroup | null {
   const parts = path.split('.');
   let current: unknown = tokens;
+  let i = 0;
 
-  for (const part of parts) {
+  while (i < parts.length) {
     if (typeof current !== 'object' || current === null) {
       return null;
     }
-    current = (current as Record<string, unknown>)[part];
+
+    const obj = current as Record<string, unknown>;
+
+    // First try the simple key
+    if (parts[i] in obj) {
+      current = obj[parts[i]];
+      i++;
+    } else {
+      // Try progressively longer compound keys (for keys with dots like 'core.colors')
+      let found = false;
+      for (let j = i + 1; j <= parts.length; j++) {
+        const compoundKey = parts.slice(i, j).join('.');
+        if (compoundKey in obj) {
+          current = obj[compoundKey];
+          i = j;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return null;
+      }
+    }
   }
 
   if (isTokenGroup(current)) {
@@ -150,17 +198,26 @@ function deepMerge(target: TokenGroup, source: TokenGroup): TokenGroup {
 
 /**
  * Derive a category name from a file path
- * e.g., "core/color-base.json" -> "core/color-base"
- * e.g., "semantic/light.json" -> "semantic/light"
+ * Normalizes to DTCG dot-notation format
+ * e.g., "core/color-base.json" -> "core.color-base"
+ * e.g., "semantic/light.json" -> "semantic.light"
  */
 export function getCategoryFromPath(filePath: string): string {
   // Remove .json extension
   let category = filePath.replace(/\.json$/, '');
 
-  // Replace path separators with forward slash for consistency
-  category = category.replace(/\\/g, '/');
+  // Normalize all path separators to dots for DTCG compliance
+  category = category.replace(/[\\/]/g, '.');
 
   return category;
+}
+
+/**
+ * Normalize a token path to DTCG dot-notation format
+ * Converts any slashes to dots
+ */
+export function normalizeTokenPath(path: string): string {
+  return path.replace(/[\\/]/g, '.');
 }
 
 /**

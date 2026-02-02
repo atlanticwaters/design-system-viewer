@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design Token Linter</title>
+    <style>/* Lint Roller - Main Styles (Light Mode Only) */
+
+:root {
+  /* Light mode colors */
+  --figma-color-bg: #f5f5f5;
+  --figma-color-bg-secondary: #ffffff;
+  --figma-color-text: #333333;
+  --figma-color-text-secondary: #666666;
+  --figma-color-text-tertiary: #999999;
+  --figma-color-border: #e5e5e5;
+  --figma-color-icon: #333333;
+
+  /* Severity colors */
+  --color-error: #dc3545;
+  --color-error-bg: #fdf2f2;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-info: #3b82f6;
+  --color-info-bg: #eff6ff;
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+
+  /* Additional Figma color aliases */
+  --figma-color-bg-success: #ecfdf5;
+  --figma-color-bg-warning: #fffbeb;
+  --figma-color-bg-danger: #fdf2f2;
+  --figma-color-bg-brand: #18a0fb;
+  --figma-color-text-success: #10b981;
+  --figma-color-text-warning: #f59e0b;
+  --figma-color-text-danger: #dc3545;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+
+  /* Font sizes */
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 12px;
+  --font-size-lg: 14px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--figma-color-text);
+  background-color: var(--figma-color-bg);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Critical for flex children to shrink and enable scrolling */
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg-secondary);
+}
+
+.header h1 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.header-controls {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.header-tabs {
+  display: flex;
+  gap: 0;
+  margin-top: var(--space-sm);
+  border-bottom: 1px solid var(--figma-color-border);
+  margin-left: calc(-1 * var(--space-lg));
+  margin-right: calc(-1 * var(--space-lg));
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+
+.header-tabs .tab {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--figma-color-text-secondary);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-weight: 500;
+}
+
+.header-tabs .tab:hover {
+  color: var(--figma-color-text);
+}
+
+.header-tabs .tab.active {
+  color: #18a0fb;
+  border-bottom-color: #18a0fb;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-primary {
+  background-color: #18a0fb;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0d8de8;
+}
+
+.btn-primary:disabled {
+  background-color: #b3b3b3;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  border: 1px solid var(--figma-color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--figma-color-border);
+}
+
+.btn-icon {
+  padding: var(--space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--figma-color-icon);
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon:hover {
+  background-color: var(--figma-color-bg);
+}
+
+/* Fix buttons */
+.btn-fix {
+  background-color: var(--color-success);
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-fix:hover {
+  background-color: #0d9668;
+}
+
+.btn-fix:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+.btn-fix-all {
+  background-color: var(--color-success);
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-fix-all:hover {
+  background-color: #0d9668;
+}
+
+.btn-fix-all:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+.btn-fix-group {
+  background-color: transparent;
+  color: var(--color-success);
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  border: 1px solid var(--color-success);
+}
+
+.btn-fix-group:hover {
+  background-color: var(--color-success-bg);
+}
+
+.btn-fix-group:disabled {
+  color: var(--figma-color-border);
+  border-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* Unbind button */
+.btn-unbind {
+  background-color: var(--color-warning);
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-unbind:hover {
+  background-color: #d97706;
+}
+
+.btn-unbind:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* Detach button */
+.btn-detach,
+.btn-detach-group {
+  background-color: #8b5cf6;
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-detach:hover,
+.btn-detach-group:hover {
+  background-color: #7c3aed;
+}
+
+.btn-detach:disabled,
+.btn-detach-group:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* Apply Style button (for text styles) */
+.btn-apply-style {
+  background-color: #0ea5e9;
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-apply-style:hover {
+  background-color: #0284c7;
+}
+
+.btn-apply-style:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* Select dropdown */
+.select {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--figma-color-bg-secondary);
+  color: var(--figma-color-text);
+  cursor: pointer;
+}
+
+/* Summary cards */
+.summary {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg-secondary);
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.stat-card {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  text-align: center;
+  background-color: var(--figma-color-bg);
+}
+
+.stat-card.error {
+  background-color: var(--color-error-bg);
+}
+
+.stat-card.warning {
+  background-color: var(--color-warning-bg);
+}
+
+.stat-card.success {
+  background-color: var(--color-success-bg);
+}
+
+.stat-card .value {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stat-card .label {
+  font-size: var(--font-size-xs);
+  color: var(--figma-color-text-secondary);
+}
+
+/* Progress bar */
+.progress-container {
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--figma-color-bg-secondary);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.progress-bar {
+  height: 4px;
+  background-color: var(--figma-color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar .fill {
+  height: 100%;
+  background-color: #18a0fb;
+  transition: width 0.2s ease;
+}
+
+.progress-text {
+  font-size: var(--font-size-xs);
+  color: var(--figma-color-text-secondary);
+  margin-top: var(--space-xs);
+}
+
+/* Results list */
+.results-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-sm);
+}
+
+.results-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--figma-color-text-secondary);
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.results-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+
+.results-group {
+  margin-bottom: var(--space-md);
+}
+
+.results-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--figma-color-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--figma-color-border);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.results-group-header:hover {
+  background-color: var(--figma-color-bg-secondary);
+  border-color: var(--figma-color-text-tertiary);
+}
+
+.results-group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.results-group-caret {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 0.15s ease;
+  color: var(--figma-color-text-tertiary);
+}
+
+.results-group-caret.expanded {
+  transform: rotate(90deg);
+}
+
+.results-group-count {
+  background-color: var(--figma-color-text-tertiary);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: var(--font-size-xs);
+}
+
+.results-group-items {
+  margin-top: var(--space-xs);
+}
+
+/* Result item */
+.result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.result-item:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.result-item .severity-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.result-item.error .severity-indicator {
+  background-color: var(--color-error);
+}
+
+.result-item.warning .severity-indicator {
+  background-color: var(--color-warning);
+}
+
+.result-item.info .severity-indicator {
+  background-color: var(--color-info);
+}
+
+.result-item .content {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-item .node-info {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.result-item .node-name {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-item .node-type {
+  font-size: var(--font-size-xs);
+  color: var(--figma-color-text-tertiary);
+  background-color: var(--figma-color-bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.result-item .message {
+  font-size: var(--font-size-sm);
+  color: var(--figma-color-text-secondary);
+  line-height: 1.4;
+}
+
+.result-item .suggestion {
+  font-size: var(--font-size-xs);
+  color: var(--color-success);
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.result-item .suggestion code {
+  background-color: var(--color-success-bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.result-item .suggestion.confidence-close {
+  color: var(--color-warning);
+}
+
+.result-item .suggestion.confidence-close code {
+  background-color: var(--color-warning-bg);
+}
+
+.result-item .suggestion.confidence-approximate {
+  color: var(--figma-color-text-secondary);
+}
+
+.result-item .suggestion.confidence-approximate code {
+  background-color: var(--figma-color-bg);
+}
+
+.confidence-badge {
+  font-size: 9px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.confidence-badge.confidence-exact {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.confidence-badge.confidence-close {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.confidence-badge.confidence-approximate {
+  background-color: var(--figma-color-text-tertiary);
+  color: white;
+}
+
+.alternatives-toggle {
+  font-size: var(--font-size-xs);
+  color: var(--color-info);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.alternatives-toggle:hover {
+  color: var(--figma-color-text);
+}
+
+.alternatives-list {
+  margin-top: var(--space-xs);
+  padding-left: var(--space-md);
+  border-left: 2px solid var(--figma-color-border);
+}
+
+.alternative-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-xs) 0;
+  font-size: var(--font-size-xs);
+}
+
+.alternative-item code {
+  background-color: var(--figma-color-bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+  color: var(--figma-color-text);
+}
+
+.alternative-distance {
+  color: var(--figma-color-text-tertiary);
+}
+
+.result-item-actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.result-item:hover .result-item-actions {
+  opacity: 1;
+}
+
+.result-item .select-btn {
+  flex-shrink: 0;
+}
+
+/* Fixed state */
+.result-item.fixed {
+  opacity: 0.6;
+}
+
+.result-item.fixed .severity-indicator {
+  background-color: var(--color-success);
+}
+
+.fixed-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background-color: var(--color-success);
+  color: white;
+  margin-right: var(--space-xs);
+  text-transform: uppercase;
+}
+
+/* Fix Status Bar */
+.fix-status-bar {
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--figma-color-bg-secondary);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.fix-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.fix-status-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.fix-progress-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--figma-color-border);
+  margin-bottom: var(--space-sm);
+}
+
+.fix-progress-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.fix-progress-segment.fixed {
+  background-color: var(--color-success);
+}
+
+.fix-progress-segment.fixable {
+  background-color: var(--color-info);
+}
+
+.fix-progress-segment.unfixable {
+  background-color: var(--figma-color-text-tertiary);
+}
+
+.fix-status-legend {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.fix-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--figma-color-text-secondary);
+}
+
+.fix-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.fix-legend-dot.fixed {
+  background-color: var(--color-success);
+}
+
+.fix-legend-dot.fixable {
+  background-color: var(--color-info);
+}
+
+.fix-legend-dot.unfixable {
+  background-color: var(--figma-color-text-tertiary);
+}
+
+/* Config panel */
+.config-panel {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg-secondary);
+}
+
+.config-section {
+  margin-bottom: var(--space-md);
+}
+
+.config-section:last-child {
+  margin-bottom: 0;
+}
+
+.config-section h3 {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+  color: var(--figma-color-text-secondary);
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) 0;
+}
+
+.config-row label {
+  font-size: var(--font-size-sm);
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 32px;
+  height: 18px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--figma-color-border);
+  border-radius: 9px;
+  transition: background-color 0.2s ease;
+}
+
+.toggle .slider:before {
+  position: absolute;
+  content: '';
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.toggle input:checked + .slider {
+  background-color: #18a0fb;
+}
+
+.toggle input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+/* Results toolbar */
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: var(--space-md);
+  border-bottom: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg-secondary);
+}
+
+.results-group-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+}
+
+.tab {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--figma-color-text-secondary);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--figma-color-text);
+}
+
+.tab.active {
+  color: #18a0fb;
+  border-bottom-color: #18a0fb;
+}
+
+/* Export menu */
+.export-menu {
+  position: relative;
+}
+
+.export-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--space-xs);
+  background-color: var(--figma-color-bg-secondary);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  min-width: 120px;
+}
+
+.export-dropdown button {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.export-dropdown button:hover {
+  background-color: var(--figma-color-bg);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--figma-color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--figma-color-text-tertiary);
+}
+
+/* =============================================
+   Path Mismatch Badge
+   ============================================= */
+.path-mismatch-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background-color: #8b5cf6;
+  color: white;
+  margin-right: var(--space-xs);
+  text-transform: uppercase;
+}
+
+/* Path mismatch progress segment */
+.fix-progress-segment.path-mismatch {
+  background-color: #8b5cf6;
+}
+
+.fix-legend-dot.path-mismatch {
+  background-color: #8b5cf6;
+}
+
+/* =============================================
+   Auto-fix Button
+   ============================================= */
+.btn-auto-fix {
+  background-color: #8b5cf6;
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-auto-fix:hover {
+  background-color: #7c3aed;
+}
+
+.btn-auto-fix:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* =============================================
+   Fix Status Bar Actions
+   ============================================= */
+.fix-status-actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.btn-fix-all-compact {
+  background-color: var(--color-success);
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-fix-all-compact:hover {
+  background-color: #0d9668;
+}
+
+.btn-fix-all-compact:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* Activity toggle button */
+.btn-activity-toggle {
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text-secondary);
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--figma-color-border);
+}
+
+.btn-activity-toggle:hover {
+  background-color: var(--figma-color-border);
+}
+
+.btn-activity-toggle.active {
+  background-color: var(--color-info-bg);
+  border-color: var(--color-info);
+  color: var(--color-info);
+}
+
+/* =============================================
+   Fix Progress Indicator
+   ============================================= */
+.fix-progress-indicator {
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm);
+  background-color: var(--color-info-bg);
+  border-radius: var(--radius-sm);
+}
+
+.fix-progress-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-info);
+  margin-bottom: var(--space-xs);
+}
+
+.fix-progress-bar-active {
+  height: 4px;
+  background-color: var(--figma-color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fix-progress-bar-fill {
+  height: 100%;
+  background-color: var(--color-info);
+  transition: width 0.2s ease;
+}
+
+/* =============================================
+   Activity Log
+   ============================================= */
+.activity-log {
+  background-color: var(--figma-color-bg-secondary);
+  border-bottom: 1px solid var(--figma-color-border);
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--figma-color-border);
+  flex-shrink: 0;
+}
+
+.activity-log-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.activity-log-title-text {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.activity-log-counts {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.activity-count {
+  font-size: var(--font-size-xs);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.activity-count.success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.activity-count.failed {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.activity-log-actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--figma-color-text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  padding: var(--space-xs);
+}
+
+.btn-text:hover {
+  color: var(--figma-color-text);
+}
+
+.activity-log-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-sm) 0;
+}
+
+.activity-log-empty {
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--figma-color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.activity-log-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-lg);
+  transition: background-color 0.15s ease;
+}
+
+.activity-log-item:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.activity-log-item.success .status-icon {
+  color: var(--color-success);
+}
+
+.activity-log-item.failed .status-icon {
+  color: var(--color-error);
+}
+
+.activity-item-status {
+  flex-shrink: 0;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.activity-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.activity-node-name {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-property {
+  font-size: var(--font-size-xs);
+  color: var(--figma-color-text-tertiary);
+  font-family: monospace;
+}
+
+.activity-action-type {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text-secondary);
+  text-transform: uppercase;
+}
+
+.activity-item-change {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+}
+
+.activity-before {
+  color: var(--color-error);
+  font-family: monospace;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-arrow {
+  color: var(--figma-color-text-tertiary);
+}
+
+.activity-after {
+  color: var(--color-success);
+  font-family: monospace;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-error {
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+  margin-top: 2px;
+}
+
+.activity-item-time {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--figma-color-text-tertiary);
+}
+
+/* =============================================
+   Ignored State
+   ============================================= */
+.result-item.ignored {
+  opacity: 0.5;
+}
+
+.result-item.ignored .severity-indicator {
+  background-color: var(--figma-color-text-tertiary);
+}
+
+.ignored-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background-color: var(--figma-color-text-tertiary);
+  color: white;
+  margin-right: var(--space-xs);
+  text-transform: uppercase;
+}
+
+/* Ignore button */
+.btn-ignore {
+  background-color: var(--figma-color-text-tertiary);
+  color: white;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.btn-ignore:hover {
+  background-color: var(--figma-color-text-secondary);
+}
+
+.btn-ignore:disabled {
+  background-color: var(--figma-color-border);
+  cursor: not-allowed;
+}
+
+/* =============================================
+   All Issues Resolved Success State
+   ============================================= */
+.results-success {
+  color: var(--color-success);
+}
+
+.results-success-icon {
+  margin-bottom: var(--space-md);
+  color: var(--color-success);
+}
+
+.results-success-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-success);
+  margin-bottom: var(--space-xs);
+}
+
+.results-success-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--figma-color-text-secondary);
+}
+</style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>"use strict";(()=>{var re,L,Ie,bt,X,Ce,Pe,Ae,Re,ye,fe,_e,xt,te={},Ee=[],St=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,le=Array.isArray;function $(e,n){for(var o in n)e[o]=n[o];return e}function he(e){e&&e.parentNode&&e.parentNode.removeChild(e)}function kt(e,n,o){var a,l,s,r={};for(s in n)s=="key"?a=n[s]:s=="ref"?l=n[s]:r[s]=n[s];if(arguments.length>2&&(r.children=arguments.length>3?re.call(arguments,2):o),typeof e=="function"&&e.defaultProps!=null)for(s in e.defaultProps)r[s]===void 0&&(r[s]=e.defaultProps[s]);return se(e,r,a,l,null)}function se(e,n,o,a,l){var s={type:e,props:n,key:o,ref:a,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:l??++Ie,__i:-1,__u:0};return l==null&&L.vnode!=null&&L.vnode(s),s}function j(e){return e.children}function ae(e,n){this.props=e,this.context=n}function Z(e,n){if(n==null)return e.__?Z(e.__,e.__i+1):null;for(var o;n<e.__k.length;n++)if((o=e.__k[n])!=null&&o.__e!=null)return o.__e;return typeof e.type=="function"?Z(e):null}function De(e){var n,o;if((e=e.__)!=null&&e.__c!=null){for(e.__e=e.__c.base=null,n=0;n<e.__k.length;n++)if((o=e.__k[n])!=null&&o.__e!=null){e.__e=e.__c.base=o.__e;break}return De(e)}}function we(e){(!e.__d&&(e.__d=!0)&&X.push(e)&&!ie.__r++||Ce!=L.debounceRendering)&&((Ce=L.debounceRendering)||Pe)(ie)}function ie(){for(var e,n,o,a,l,s,r,d=1;X.length;)X.length>d&&X.sort(Ae),e=X.shift(),d=X.length,e.__d&&(o=void 0,a=void 0,l=(a=(n=e).__v).__e,s=[],r=[],n.__P&&((o=$({},a)).__v=a.__v+1,L.vnode&&L.vnode(o),be(n.__P,o,a,n.__n,n.__P.namespaceURI,32&a.__u?[l]:null,s,l??Z(a),!!(32&a.__u),r),o.__v=a.__v,o.__.__k[o.__i]=o,Me(s,o,r),a.__e=a.__=null,o.__e!=l&&De(o)));ie.__r=0}function Fe(e,n,o,a,l,s,r,d,u,c,g){var i,f,m,b,S,T,_,h=a&&a.__k||Ee,C=n.length;for(u=Nt(o,n,h,u,C),i=0;i<C;i++)(m=o.__k[i])!=null&&(f=m.__i==-1?te:h[m.__i]||te,m.__i=i,T=be(e,m,f,l,s,r,d,u,c,g),b=m.__e,m.ref&&f.ref!=m.ref&&(f.ref&&xe(f.ref,null,m),g.push(m.ref,m.__c||b,m)),S==null&&b!=null&&(S=b),(_=!!(4&m.__u))||f.__k===m.__k?u=Ve(m,u,e,_):typeof m.type=="function"&&T!==void 0?u=T:b&&(u=b.nextSibling),m.__u&=-7);return o.__e=S,u}function Nt(e,n,o,a,l){var s,r,d,u,c,g=o.length,i=g,f=0;for(e.__k=new Array(l),s=0;s<l;s++)(r=n[s])!=null&&typeof r!="boolean"&&typeof r!="function"?(typeof r=="string"||typeof r=="number"||typeof r=="bigint"||r.constructor==String?r=e.__k[s]=se(null,r,null,null,null):le(r)?r=e.__k[s]=se(j,{children:r},null,null,null):r.constructor===void 0&&r.__b>0?r=e.__k[s]=se(r.type,r.props,r.key,r.ref?r.ref:null,r.__v):e.__k[s]=r,u=s+f,r.__=e,r.__b=e.__b+1,d=null,(c=r.__i=Ct(r,o,u,i))!=-1&&(i--,(d=o[c])&&(d.__u|=2)),d==null||d.__v==null?(c==-1&&(l>g?f--:l<g&&f++),typeof r.type!="function"&&(r.__u|=4)):c!=u&&(c==u-1?f--:c==u+1?f++:(c>u?f--:f++,r.__u|=4))):e.__k[s]=null;if(i)for(s=0;s<g;s++)(d=o[s])!=null&&!(2&d.__u)&&(d.__e==a&&(a=Z(d)),Ue(d,d));return a}function Ve(e,n,o,a){var l,s;if(typeof e.type=="function"){for(l=e.__k,s=0;l&&s<l.length;s++)l[s]&&(l[s].__=e,n=Ve(l[s],n,o,a));return n}e.__e!=n&&(a&&(n&&e.type&&!n.parentNode&&(n=Z(e)),o.insertBefore(e.__e,n||null)),n=e.__e);do n=n&&n.nextSibling;while(n!=null&&n.nodeType==8);return n}function Ct(e,n,o,a){var l,s,r,d=e.key,u=e.type,c=n[o],g=c!=null&&(2&c.__u)==0;if(c===null&&d==null||g&&d==c.key&&u==c.type)return o;if(a>(g?1:0)){for(l=o-1,s=o+1;l>=0||s<n.length;)if((c=n[r=l>=0?l--:s++])!=null&&!(2&c.__u)&&d==c.key&&u==c.type)return r}return-1}function Te(e,n,o){n[0]=="-"?e.setProperty(n,o??""):e[n]=o==null?"":typeof o!="number"||St.test(n)?o:o+"px"}function oe(e,n,o,a,l){var s,r;e:if(n=="style")if(typeof o=="string")e.style.cssText=o;else{if(typeof a=="string"&&(e.style.cssText=a=""),a)for(n in a)o&&n in o||Te(e.style,n,"");if(o)for(n in o)a&&o[n]==a[n]||Te(e.style,n,o[n])}else if(n[0]=="o"&&n[1]=="n")s=n!=(n=n.replace(Re,"$1")),r=n.toLowerCase(),n=r in e||n=="onFocusOut"||n=="onFocusIn"?r.slice(2):n.slice(2),e.l||(e.l={}),e.l[n+s]=o,o?a?o.u=a.u:(o.u=ye,e.addEventListener(n,s?_e:fe,s)):e.removeEventListener(n,s?_e:fe,s);else{if(l=="http://www.w3.org/2000/svg")n=n.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if(n!="width"&&n!="height"&&n!="href"&&n!="list"&&n!="form"&&n!="tabIndex"&&n!="download"&&n!="rowSpan"&&n!="colSpan"&&n!="role"&&n!="popover"&&n in e)try{e[n]=o??"";break e}catch{}typeof o=="function"||(o==null||o===!1&&n[4]!="-"?e.removeAttribute(n):e.setAttribute(n,n=="popover"&&o==1?"":o))}}function Le(e){return function(n){if(this.l){var o=this.l[n.type+e];if(n.t==null)n.t=ye++;else if(n.t<o.u)return;return o(L.event?L.event(n):n)}}}function be(e,n,o,a,l,s,r,d,u,c){var g,i,f,m,b,S,T,_,h,C,F,k,x,E,z,H,B,V=n.type;if(n.constructor!==void 0)return null;128&o.__u&&(u=!!(32&o.__u),s=[d=n.__e=o.__e]),(g=L.__b)&&g(n);e:if(typeof V=="function")try{if(_=n.props,h="prototype"in V&&V.prototype.render,C=(g=V.contextType)&&a[g.__c],F=g?C?C.props.value:g.__:a,o.__c?T=(i=n.__c=o.__c).__=i.__E:(h?n.__c=i=new V(_,F):(n.__c=i=new ae(_,F),i.constructor=V,i.render=Tt),C&&C.sub(i),i.state||(i.state={}),i.__n=a,f=i.__d=!0,i.__h=[],i._sb=[]),h&&i.__s==null&&(i.__s=i.state),h&&V.getDerivedStateFromProps!=null&&(i.__s==i.state&&(i.__s=$({},i.__s)),$(i.__s,V.getDerivedStateFromProps(_,i.__s))),m=i.props,b=i.state,i.__v=n,f)h&&V.getDerivedStateFromProps==null&&i.componentWillMount!=null&&i.componentWillMount(),h&&i.componentDidMount!=null&&i.__h.push(i.componentDidMount);else{if(h&&V.getDerivedStateFromProps==null&&_!==m&&i.componentWillReceiveProps!=null&&i.componentWillReceiveProps(_,F),n.__v==o.__v||!i.__e&&i.shouldComponentUpdate!=null&&i.shouldComponentUpdate(_,i.__s,F)===!1){for(n.__v!=o.__v&&(i.props=_,i.state=i.__s,i.__d=!1),n.__e=o.__e,n.__k=o.__k,n.__k.some(function(y){y&&(y.__=n)}),k=0;k<i._sb.length;k++)i.__h.push(i._sb[k]);i._sb=[],i.__h.length&&r.push(i);break e}i.componentWillUpdate!=null&&i.componentWillUpdate(_,i.__s,F),h&&i.componentDidUpdate!=null&&i.__h.push(function(){i.componentDidUpdate(m,b,S)})}if(i.context=F,i.props=_,i.__P=e,i.__e=!1,x=L.__r,E=0,h){for(i.state=i.__s,i.__d=!1,x&&x(n),g=i.render(i.props,i.state,i.context),z=0;z<i._sb.length;z++)i.__h.push(i._sb[z]);i._sb=[]}else do i.__d=!1,x&&x(n),g=i.render(i.props,i.state,i.context),i.state=i.__s;while(i.__d&&++E<25);i.state=i.__s,i.getChildContext!=null&&(a=$($({},a),i.getChildContext())),h&&!f&&i.getSnapshotBeforeUpdate!=null&&(S=i.getSnapshotBeforeUpdate(m,b)),H=g,g!=null&&g.type===j&&g.key==null&&(H=ze(g.props.children)),d=Fe(e,le(H)?H:[H],n,o,a,l,s,r,d,u,c),i.base=n.__e,n.__u&=-161,i.__h.length&&r.push(i),T&&(i.__E=i.__=null)}catch(y){if(n.__v=null,u||s!=null)if(y.then){for(n.__u|=u?160:128;d&&d.nodeType==8&&d.nextSibling;)d=d.nextSibling;s[s.indexOf(d)]=null,n.__e=d}else{for(B=s.length;B--;)he(s[B]);ve(n)}else n.__e=o.__e,n.__k=o.__k,y.then||ve(n);L.__e(y,n,o)}else s==null&&n.__v==o.__v?(n.__k=o.__k,n.__e=o.__e):d=n.__e=wt(o.__e,n,o,a,l,s,r,u,c);return(g=L.diffed)&&g(n),128&n.__u?void 0:d}function ve(e){e&&e.__c&&(e.__c.__e=!0),e&&e.__k&&e.__k.forEach(ve)}function Me(e,n,o){for(var a=0;a<o.length;a++)xe(o[a],o[++a],o[++a]);L.__c&&L.__c(n,e),e.some(function(l){try{e=l.__h,l.__h=[],e.some(function(s){s.call(l)})}catch(s){L.__e(s,l.__v)}})}function ze(e){return typeof e!="object"||e==null||e.__b&&e.__b>0?e:le(e)?e.map(ze):$({},e)}function wt(e,n,o,a,l,s,r,d,u){var c,g,i,f,m,b,S,T=o.props||te,_=n.props,h=n.type;if(h=="svg"?l="http://www.w3.org/2000/svg":h=="math"?l="http://www.w3.org/1998/Math/MathML":l||(l="http://www.w3.org/1999/xhtml"),s!=null){for(c=0;c<s.length;c++)if((m=s[c])&&"setAttribute"in m==!!h&&(h?m.localName==h:m.nodeType==3)){e=m,s[c]=null;break}}if(e==null){if(h==null)return document.createTextNode(_);e=document.createElementNS(l,h,_.is&&_),d&&(L.__m&&L.__m(n,s),d=!1),s=null}if(h==null)T===_||d&&e.data==_||(e.data=_);else{if(s=s&&re.call(e.childNodes),!d&&s!=null)for(T={},c=0;c<e.attributes.length;c++)T[(m=e.attributes[c]).name]=m.value;for(c in T)if(m=T[c],c!="children"){if(c=="dangerouslySetInnerHTML")i=m;else if(!(c in _)){if(c=="value"&&"defaultValue"in _||c=="checked"&&"defaultChecked"in _)continue;oe(e,c,null,m,l)}}for(c in _)m=_[c],c=="children"?f=m:c=="dangerouslySetInnerHTML"?g=m:c=="value"?b=m:c=="checked"?S=m:d&&typeof m!="function"||T[c]===m||oe(e,c,m,T[c],l);if(g)d||i&&(g.__html==i.__html||g.__html==e.innerHTML)||(e.innerHTML=g.__html),n.__k=[];else if(i&&(e.innerHTML=""),Fe(n.type=="template"?e.content:e,le(f)?f:[f],n,o,a,h=="foreignObject"?"http://www.w3.org/1999/xhtml":l,s,r,s?s[0]:o.__k&&Z(o,0),d,u),s!=null)for(c=s.length;c--;)he(s[c]);d||(c="value",h=="progress"&&b==null?e.removeAttribute("value"):b!=null&&(b!==e[c]||h=="progress"&&!b||h=="option"&&b!=T[c])&&oe(e,c,b,T[c],l),c="checked",S!=null&&S!=e[c]&&oe(e,c,S,T[c],l))}return e}function xe(e,n,o){try{if(typeof e=="function"){var a=typeof e.__u=="function";a&&e.__u(),a&&n==null||(e.__u=e(n))}else e.current=n}catch(l){L.__e(l,o)}}function Ue(e,n,o){var a,l;if(L.unmount&&L.unmount(e),(a=e.ref)&&(a.current&&a.current!=e.__e||xe(a,null,n)),(a=e.__c)!=null){if(a.componentWillUnmount)try{a.componentWillUnmount()}catch(s){L.__e(s,n)}a.base=a.__P=null}if(a=e.__k)for(l=0;l<a.length;l++)a[l]&&Ue(a[l],n,o||typeof e.type!="function");o||he(e.__e),e.__c=e.__=e.__e=void 0}function Tt(e,n,o){return this.constructor(e,o)}function He(e,n,o){var a,l,s,r;n==document&&(n=document.documentElement),L.__&&L.__(e,n),l=(a=typeof o=="function")?null:o&&o.__k||n.__k,s=[],r=[],be(n,e=(!a&&o||n).__k=kt(j,null,[e]),l||te,te,n.namespaceURI,!a&&o?[o]:l?null:n.firstChild?re.call(n.childNodes):null,s,!a&&o?o:l?l.__e:n.firstChild,a,r),Me(s,e,r)}re=Ee.slice,L={__e:function(e,n,o,a){for(var l,s,r;n=n.__;)if((l=n.__c)&&!l.__)try{if((s=l.constructor)&&s.getDerivedStateFromError!=null&&(l.setState(s.getDerivedStateFromError(e)),r=l.__d),l.componentDidCatch!=null&&(l.componentDidCatch(e,a||{}),r=l.__d),r)return l.__E=l}catch(d){e=d}throw e}},Ie=0,bt=function(e){return e!=null&&e.constructor===void 0},ae.prototype.setState=function(e,n){var o;o=this.__s!=null&&this.__s!=this.state?this.__s:this.__s=$({},this.state),typeof e=="function"&&(e=e($({},o),this.props)),e&&$(o,e),e!=null&&this.__v&&(n&&this._sb.push(n),we(this))},ae.prototype.forceUpdate=function(e){this.__v&&(this.__e=!0,e&&this.__h.push(e),we(this))},ae.prototype.render=j,X=[],Pe=typeof Promise=="function"?Promise.prototype.then.bind(Promise.resolve()):setTimeout,Ae=function(e,n){return e.__v.__b-n.__v.__b},ie.__r=0,Re=/(PointerCapture)$|Capture$/i,ye=0,fe=Le(!1),_e=Le(!0),xt=0;var ne,A,Se,Be,de=0,qe=[],D=L,Oe=D.__b,We=D.__r,$e=D.diffed,je=D.__c,Ge=D.unmount,Ye=D.__;function Ne(e,n){D.__h&&D.__h(A,e,de||n),de=0;var o=A.__H||(A.__H={__:[],__h:[]});return e>=o.__.length&&o.__.push({}),o.__[e]}function w(e){return de=1,Lt(Qe,e)}function Lt(e,n,o){var a=Ne(ne++,2);if(a.t=e,!a.__c&&(a.__=[o?o(n):Qe(void 0,n),function(d){var u=a.__N?a.__N[0]:a.__[0],c=a.t(u,d);u!==c&&(a.__N=[c,a.__[1]],a.__c.setState({}))}],a.__c=A,!A.__f)){var l=function(d,u,c){if(!a.__c.__H)return!0;var g=a.__c.__H.__.filter(function(f){return!!f.__c});if(g.every(function(f){return!f.__N}))return!s||s.call(this,d,u,c);var i=a.__c.props!==d;return g.forEach(function(f){if(f.__N){var m=f.__[0];f.__=f.__N,f.__N=void 0,m!==f.__[0]&&(i=!0)}}),s&&s.call(this,d,u,c)||i};A.__f=!0;var s=A.shouldComponentUpdate,r=A.componentWillUpdate;A.componentWillUpdate=function(d,u,c){if(this.__e){var g=s;s=void 0,l(d,u,c),s=g}r&&r.call(this,d,u,c)},A.shouldComponentUpdate=l}return a.__N||a.__}function G(e,n){var o=Ne(ne++,3);!D.__s&&Xe(o.__H,n)&&(o.__=e,o.u=n,A.__H.__h.push(o))}function ee(e,n){var o=Ne(ne++,7);return Xe(o.__H,n)&&(o.__=e(),o.__H=n,o.__h=e),o.__}function R(e,n){return de=8,ee(function(){return e},n)}function It(){for(var e;e=qe.shift();)if(e.__P&&e.__H)try{e.__H.__h.forEach(ce),e.__H.__h.forEach(ke),e.__H.__h=[]}catch(n){e.__H.__h=[],D.__e(n,e.__v)}}D.__b=function(e){A=null,Oe&&Oe(e)},D.__=function(e,n){e&&n.__k&&n.__k.__m&&(e.__m=n.__k.__m),Ye&&Ye(e,n)},D.__r=function(e){We&&We(e),ne=0;var n=(A=e.__c).__H;n&&(Se===A?(n.__h=[],A.__h=[],n.__.forEach(function(o){o.__N&&(o.__=o.__N),o.u=o.__N=void 0})):(n.__h.forEach(ce),n.__h.forEach(ke),n.__h=[],ne=0)),Se=A},D.diffed=function(e){$e&&$e(e);var n=e.__c;n&&n.__H&&(n.__H.__h.length&&(qe.push(n)!==1&&Be===D.requestAnimationFrame||((Be=D.requestAnimationFrame)||Pt)(It)),n.__H.__.forEach(function(o){o.u&&(o.__H=o.u),o.u=void 0})),Se=A=null},D.__c=function(e,n){n.some(function(o){try{o.__h.forEach(ce),o.__h=o.__h.filter(function(a){return!a.__||ke(a)})}catch(a){n.some(function(l){l.__h&&(l.__h=[])}),n=[],D.__e(a,o.__v)}}),je&&je(e,n)},D.unmount=function(e){Ge&&Ge(e);var n,o=e.__c;o&&o.__H&&(o.__H.__.forEach(function(a){try{ce(a)}catch(l){n=l}}),o.__H=void 0,n&&D.__e(n,o.__v))};var Ke=typeof requestAnimationFrame=="function";function Pt(e){var n,o=function(){clearTimeout(a),Ke&&cancelAnimationFrame(n),setTimeout(e)},a=setTimeout(o,35);Ke&&(n=requestAnimationFrame(o))}function ce(e){var n=A,o=e.__c;typeof o=="function"&&(e.__c=void 0,o()),A=n}function ke(e){var n=A;e.__c=e.__(),A=n}function Xe(e,n){return!e||e.length!==n.length||n.some(function(o,a){return o!==e[a]})}function Qe(e,n){return typeof n=="function"?n(e):n}function Je(){return{rules:{"no-hardcoded-colors":{enabled:!0,severity:"error"},"no-hardcoded-typography":{enabled:!0,severity:"warning"},"no-hardcoded-spacing":{enabled:!0,severity:"warning"},"no-hardcoded-radii":{enabled:!0,severity:"warning"},"no-orphaned-variables":{enabled:!0,severity:"error"},"no-unknown-styles":{enabled:!0,severity:"warning"}},skipHiddenLayers:!0,skipLockedLayers:!1}}var At=0,Gt=Array.isArray;function t(e,n,o,a,l,s){n||(n={});var r,d,u=n;if("ref"in u)for(d in u={},n)d=="ref"?r=n[d]:u[d]=n[d];var c={type:e,props:u,key:o,ref:r,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:--At,__i:-1,__u:0,__source:l,__self:s};if(typeof e=="function"&&(r=e.defaultProps))for(d in r)u[d]===void 0&&(u[d]=r[d]);return L.vnode&&L.vnode(c),c}function Ze({onScan:e,isScanning:n,scope:o,onScopeChange:a,onExport:l,hasResults:s,view:r,onViewChange:d}){let[u,c]=w(!1);return t("header",{className:"header",children:[t("h1",{children:"Lint Roller"}),t("div",{className:"header-controls",children:[t("select",{className:"select",value:o,onChange:g=>a(g.target.value),disabled:n,children:[t("option",{value:"selection",children:"Selection"}),t("option",{value:"current_page",children:"Current Page"}),t("option",{value:"full_document",children:"Full Document"})]}),t("button",{className:"btn btn-primary",onClick:e,disabled:n,children:n?"Scanning...":"Scan"}),t("div",{className:"export-menu",children:[t("button",{className:"btn btn-secondary",onClick:()=>c(!u),disabled:!s,children:"Export"}),u&&t("div",{className:"export-dropdown",children:[t("button",{onClick:()=>{l("json"),c(!1)},children:"Export JSON"}),t("button",{onClick:()=>{l("csv"),c(!1)},children:"Export CSV"})]})]})]}),t("div",{className:"header-tabs",children:[t("button",{type:"button",className:`tab ${r==="sync"?"active":""}`,onClick:()=>d("sync"),children:"Sync"}),t("button",{type:"button",className:`tab ${r==="results"?"active":""}`,onClick:()=>d("results"),children:"Lint"}),t("button",{type:"button",className:`tab ${r==="config"?"active":""}`,onClick:()=>d("config"),children:"Config"})]})]})}function et({results:e,fixedViolations:n,ignoredViolations:o}){let{metadata:a}=e,l=ee(()=>{let r=0,d={error:0,warning:0,info:0};for(let u of e.violations){let c=u.nodeId+":"+u.property;!n.has(c)&&!o.has(c)&&(r++,d[u.severity]++)}return{total:r,bySeverity:d}},[e.violations,n,o]),s=n.size+o.size;return t("div",{className:"summary",children:t("div",{className:"stat-cards",children:[t("div",{className:`stat-card ${l.total>0?"warning":"success"}`,children:[t("div",{className:"value",children:l.total}),t("div",{className:"label",children:s>0?`Remaining (${s} resolved)`:"Total Issues"})]}),t("div",{className:`stat-card ${l.bySeverity.error>0?"error":""}`,children:[t("div",{className:"value",children:l.bySeverity.error}),t("div",{className:"label",children:"Errors"})]}),t("div",{className:`stat-card ${l.bySeverity.warning>0?"warning":""}`,children:[t("div",{className:"value",children:l.bySeverity.warning}),t("div",{className:"label",children:"Warnings"})]}),t("div",{className:"stat-card",children:[t("div",{className:"value",children:a.scannedNodes}),t("div",{className:"label",children:"Nodes Scanned"})]})]})})}function tt({processed:e,total:n}){let o=n>0?Math.round(e/n*100):0;return t("div",{className:"progress-container",children:[t("div",{className:"progress-bar",children:t("div",{className:"fill",style:{width:`${o}%`}})}),t("div",{className:"progress-text",children:["Scanning... ",e," / ",n," nodes (",o,"%)"]})]})}function nt({violations:e,fixedViolations:n,isFixing:o,onFixAll:a,onAutoFixPathMismatches:l,fixProgress:s,showActivityLog:r,onToggleActivityLog:d,activityCount:u}){let c=e.length,g=e.filter(C=>C.suggestedToken),i=g.filter(C=>n.has(C.nodeId+":"+C.property)),f=g.filter(C=>!n.has(C.nodeId+":"+C.property)),m=e.filter(C=>!C.suggestedToken),b=e.filter(C=>C.isPathMismatch&&!n.has(C.nodeId+":"+C.property)),S=c>0?i.length/c*100:0,T=c>0?b.length/c*100:0,_=c>0?(f.length-b.length)/c*100:0,h=c>0?m.length/c*100:0;return c===0?null:t("div",{className:"fix-status-bar",children:[t("div",{className:"fix-status-header",children:[t("span",{className:"fix-status-title",children:"Fix Status"}),t("div",{className:"fix-status-actions",children:[b.length>0&&t("button",{className:"btn btn-auto-fix",onClick:l,disabled:o,title:"Auto-fix all path notation mismatches (/ vs . syntax)",children:["Auto-fix ",b.length," Path ",b.length===1?"Mismatch":"Mismatches"]}),f.length>0&&t("button",{className:"btn btn-fix-all-compact",onClick:a,disabled:o,children:o?"Fixing...":"Fix "+f.length+" Issues"}),t("button",{className:"btn btn-activity-toggle"+(r?" active":""),onClick:d,title:r?"Hide activity log":"Show activity log",children:["Activity",u>0?" ("+u+")":""]})]})]}),o&&s&&t("div",{className:"fix-progress-indicator",children:[t("div",{className:"fix-progress-text",children:["Fixing ",s.current," of ",s.total,"..."]}),t("div",{className:"fix-progress-bar-active",children:t("div",{className:"fix-progress-bar-fill",style:{width:s.current/s.total*100+"%"}})})]}),t("div",{className:"fix-progress-bar",children:[t("div",{className:"fix-progress-segment fixed",style:{width:S+"%"},title:i.length+" fixed"}),t("div",{className:"fix-progress-segment path-mismatch",style:{width:T+"%"},title:b.length+" path mismatches (auto-fixable)"}),t("div",{className:"fix-progress-segment fixable",style:{width:_+"%"},title:f.length-b.length+" can be fixed"}),t("div",{className:"fix-progress-segment unfixable",style:{width:h+"%"},title:m.length+" cannot be auto-fixed"})]}),t("div",{className:"fix-status-legend",children:[t("div",{className:"fix-legend-item",children:[t("span",{className:"fix-legend-dot fixed"}),t("span",{className:"fix-legend-count",children:i.length}),t("span",{className:"fix-legend-label",children:"Fixed"})]}),b.length>0&&t("div",{className:"fix-legend-item",children:[t("span",{className:"fix-legend-dot path-mismatch"}),t("span",{className:"fix-legend-count",children:b.length}),t("span",{className:"fix-legend-label",children:"Path Mismatch"})]}),t("div",{className:"fix-legend-item",children:[t("span",{className:"fix-legend-dot fixable"}),t("span",{className:"fix-legend-count",children:f.length-b.length}),t("span",{className:"fix-legend-label",children:"Fixable"})]}),t("div",{className:"fix-legend-item",children:[t("span",{className:"fix-legend-dot unfixable"}),t("span",{className:"fix-legend-count",children:m.length}),t("span",{className:"fix-legend-label",children:"Manual"})]})]})]})}function Rt(e){return new Date(e).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}function Et(e){return e==="success"?"\u2713":"\u2717"}function Dt(e){switch(e){case"rebind":return"Rebound";case"unbind":return"Unbound";case"detach":return"Detached";default:return"Fixed"}}function ot({actions:e,isVisible:n,onClose:o,onClear:a}){if(!n)return null;let l=e.filter(r=>r.status==="success").length,s=e.filter(r=>r.status==="failed").length;return t("div",{className:"activity-log",children:[t("div",{className:"activity-log-header",children:[t("div",{className:"activity-log-title",children:[t("span",{className:"activity-log-title-text",children:"Activity Log"}),t("span",{className:"activity-log-counts",children:[t("span",{className:"activity-count success",children:[l," success"]}),s>0&&t("span",{className:"activity-count failed",children:[s," failed"]})]})]}),t("div",{className:"activity-log-actions",children:[e.length>0&&t("button",{className:"btn btn-text",onClick:a,title:"Clear activity log",children:"Clear"}),t("button",{className:"btn btn-icon",onClick:o,title:"Close activity log",children:"\xD7"})]})]}),t("div",{className:"activity-log-content",children:e.length===0?t("div",{className:"activity-log-empty",children:'No fix actions yet. Click "Fix" on a violation to see activity here.'}):t("div",{className:"activity-log-list",children:[...e].reverse().map((r,d)=>t("div",{className:"activity-log-item "+r.status,children:[t("div",{className:"activity-item-status",children:t("span",{className:"status-icon "+r.status,children:Et(r.status)})}),t("div",{className:"activity-item-content",children:[t("div",{className:"activity-item-header",children:[t("span",{className:"activity-node-name",title:r.nodeName,children:r.nodeName}),t("span",{className:"activity-property",children:[".",r.property]}),t("span",{className:"activity-action-type",children:Dt(r.actionType)})]}),t("div",{className:"activity-item-change",children:[t("span",{className:"activity-before",title:r.beforeValue,children:r.beforeValue}),t("span",{className:"activity-arrow",children:"\u2192"}),t("span",{className:"activity-after",title:r.afterValue,children:r.afterValue})]}),r.status==="failed"&&r.errorMessage&&t("div",{className:"activity-error",children:r.errorMessage})]}),t("div",{className:"activity-item-time",children:Rt(r.timestamp)})]},e.length-1-d))})})]})}function st(e){switch(e){case"exact":return"confidence-exact";case"close":return"confidence-close";case"approximate":return"confidence-approximate";default:return""}}function Ft(e){switch(e){case"exact":return"Exact match";case"close":return"Close match";case"approximate":return"Approximate";default:return""}}function at({violation:e,showNodeInfo:n,showRuleInfo:o,onSelect:a,onFix:l,onUnbind:s,onDetach:r,onApplyStyle:d,onIgnore:u,isFixed:c,isIgnored:g,isFixing:i}){let[f,m]=w(!1),b=e.alternativeTokens&&e.alternativeTokens.length>0,S=c||g,T=e.suggestedToken&&!S,_=e.canUnbind&&!S,h=e.canDetach&&!S,C=e.canApplyTextStyle&&e.suggestedTextStyle&&!S,F=e.canIgnore&&!S;return t("div",{className:"result-item "+e.severity+(c?" fixed":"")+(g?" ignored":""),onClick:a,children:[t("div",{className:"severity-indicator"}),t("div",{className:"content",children:[n&&t("div",{className:"node-info",children:[t("span",{className:"node-name",children:e.nodeName}),t("span",{className:"node-type",children:e.nodeType})]}),t("div",{className:"message",children:[c&&t("span",{className:"fixed-badge",children:"Fixed"}),g&&t("span",{className:"ignored-badge",children:"Ignored"}),e.isPathMismatch&&!S&&t("span",{className:"path-mismatch-badge",title:"Auto-fixable: Only path syntax differs (/ vs .)",children:"Path Mismatch"}),e.message]}),e.suggestedToken&&!S&&t("div",{className:"suggestion "+st(e.suggestionConfidence),children:[t("span",{className:"suggestion-label",children:[e.suggestionConfidence&&t("span",{className:"confidence-badge "+st(e.suggestionConfidence),children:Ft(e.suggestionConfidence)}),"Use: ",t("code",{children:e.suggestedToken})]}),b&&t("button",{className:"alternatives-toggle",onClick:k=>{k.stopPropagation(),m(!f)},children:[f?"Hide":"Show"," ",e.alternativeTokens.length," more"]})]}),f&&b&&!S&&t("div",{className:"alternatives-list",children:e.alternativeTokens.map((k,x)=>t("div",{className:"alternative-item",children:[t("code",{children:k.path}),t("span",{className:"alternative-distance",children:[typeof k.value=="string"?k.value:k.value+"px"," - ",k.description]})]},x))}),e.suggestedTextStyle&&!S&&t("div",{className:"suggestion "+(e.suggestedTextStyle.matchQuality==="exact"?"confidence-exact":"confidence-close"),children:t("span",{className:"suggestion-label",children:[t("span",{className:"confidence-badge "+(e.suggestedTextStyle.matchQuality==="exact"?"confidence-exact":"confidence-close"),children:e.suggestedTextStyle.matchQuality==="exact"?"Exact match":"Partial match"}),"Apply style: ",t("code",{children:e.suggestedTextStyle.name})]})})]}),t("div",{className:"result-item-actions",children:[T&&t("button",{className:"btn btn-fix",onClick:k=>{k.stopPropagation(),l()},disabled:i,title:_?"Rebind to suggested token":"Apply suggested fix",children:_?"Rebind":"Fix"}),_&&t("button",{className:"btn btn-unbind",onClick:k=>{k.stopPropagation(),s()},disabled:i,title:"Remove variable binding (keeps current value)",children:"Unbind"}),h&&t("button",{className:"btn btn-detach",onClick:k=>{k.stopPropagation(),r()},disabled:i,title:"Detach style (keeps current appearance)",children:"Detach"}),C&&t("button",{className:"btn btn-apply-style",onClick:k=>{k.stopPropagation(),d()},disabled:i,title:"Apply text style: "+e.suggestedTextStyle.name,children:"Apply Style"}),F&&t("button",{className:"btn btn-ignore",onClick:k=>{k.stopPropagation(),u()},disabled:i,title:"Ignore this issue (no matching style within tolerance)",children:"Ignore"}),t("button",{className:"btn btn-icon select-btn",onClick:k=>{k.stopPropagation(),a()},title:"Select in Figma",children:"\u2192"})]})]})}var Vt={"no-hardcoded-colors":"Hardcoded Colors","no-hardcoded-typography":"Hardcoded Typography","no-hardcoded-spacing":"Hardcoded Spacing","no-hardcoded-radii":"Hardcoded Radii","no-orphaned-variables":"Orphaned Variables","no-unknown-styles":"Unknown Styles"};function it({results:e,groupBy:n,onGroupByChange:o,onSelectNode:a,onFix:l,onBulkFix:s,onUnbind:r,onDetach:d,onBulkDetach:u,onApplyStyle:c,onIgnore:g,fixedViolations:i,ignoredViolations:f,isFixing:m,fixableCount:b}){let[S,T]=w(new Set),_=ee(()=>{if(!e)return{};let y={};for(let P of e.violations){let N=n==="rule"?P.ruleId:P.nodeId;y[N]||(y[N]=[]),y[N].push(P)}return y},[e,n]),h=y=>{let P=new Set(S);P.has(y)?P.delete(y):P.add(y),T(P)};ee(()=>{e&&T(new Set(Object.keys(_)))},[e]);let C=y=>i.has(y.nodeId+":"+y.property),F=y=>f.has(y.nodeId+":"+y.property),k=y=>C(y)||F(y),x=y=>y.filter(P=>!k(P)),E=y=>y.filter(P=>P.suggestedToken&&!k(P)),z=y=>y.filter(P=>P.canDetach&&!k(P));if(!e)return t("div",{className:"results-container",children:t("div",{className:"results-empty",children:[t("div",{className:"results-empty-icon",children:"?"}),t("p",{children:"No results yet"}),t("p",{children:'Click "Scan" to lint your design tokens'})]})});if(e.violations.length===0)return t("div",{className:"results-container",children:t("div",{className:"results-empty results-success",children:[t("div",{className:"results-success-icon",children:t("svg",{width:"48",height:"48",viewBox:"0 0 48 48",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[t("circle",{cx:"24",cy:"24",r:"22",stroke:"currentColor",strokeWidth:"3"}),t("path",{d:"M14 24L21 31L34 18",stroke:"currentColor",strokeWidth:"3",strokeLinecap:"round",strokeLinejoin:"round"})]})}),t("p",{className:"results-success-title",children:"No issues found!"}),t("p",{className:"results-success-subtitle",children:"All checked nodes use proper design tokens"})]})});let H=e.violations.filter(y=>!k(y)).length,B=i.size+f.size;if(H===0&&B>0)return t("div",{className:"results-container",children:t("div",{className:"results-empty results-success",children:[t("div",{className:"results-success-icon",children:t("svg",{width:"48",height:"48",viewBox:"0 0 48 48",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[t("circle",{cx:"24",cy:"24",r:"22",stroke:"currentColor",strokeWidth:"3"}),t("path",{d:"M14 24L21 31L34 18",stroke:"currentColor",strokeWidth:"3",strokeLinecap:"round",strokeLinejoin:"round"})]})}),t("p",{className:"results-success-title",children:"All issues resolved!"}),t("p",{className:"results-success-subtitle",children:[B," issue",B!==1?"s":""," fixed or ignored"]})]})});let V=Object.keys(_).filter(y=>x(_[y]).length>0);return t("div",{className:"results-container",children:[t("div",{className:"results-toolbar",children:[t("div",{className:"tabs",children:[t("button",{className:"tab "+(n==="rule"?"active":""),onClick:()=>o("rule"),children:"By Rule"}),t("button",{className:"tab "+(n==="node"?"active":""),onClick:()=>o("node"),children:"By Node"})]}),b>0&&t("button",{className:"btn btn-fix-all",onClick:()=>s(e.violations),disabled:m,children:m?"Fixing...":"Fix All ("+b+")"})]}),t("div",{style:{padding:"var(--space-sm)"},children:V.map(y=>{let P=_[y],N=x(P),Y=S.has(y),ue=n==="rule"?Vt[y]||y:P[0]?.nodeName||y,Q=E(P),K=z(P),pe=y==="no-unknown-styles";return t("div",{className:"results-group",children:[t("div",{className:"results-group-header",onClick:()=>h(y),children:[t("span",{className:"results-group-title",children:[t("span",{className:"results-group-caret"+(Y?" expanded":""),children:"\u25B6"}),ue]}),t("div",{className:"results-group-actions",children:[Q.length>0&&t("button",{className:"btn btn-fix-group",onClick:M=>{M.stopPropagation(),s(Q)},disabled:m,title:"Fix "+Q.length+" issues in this group",children:["Fix (",Q.length,")"]}),pe&&K.length>0&&t("button",{className:"btn btn-detach-group",onClick:M=>{M.stopPropagation(),u(K)},disabled:m,title:"Detach "+K.length+" styles in this group",children:["Detach All (",K.length,")"]}),t("span",{className:"results-group-count",children:N.length})]})]}),Y&&t("div",{className:"results-group-items",children:N.map(M=>t(at,{violation:M,showNodeInfo:n==="rule",showRuleInfo:n==="node",onSelect:()=>a(M.nodeId),onFix:()=>l(M),onUnbind:()=>r(M),onDetach:()=>d(M),onApplyStyle:()=>c(M),onIgnore:()=>g(M),isFixed:C(M),isIgnored:F(M),isFixing:m},M.id))})]},y)})})]})}var Mt=[{id:"no-hardcoded-colors",name:"No Hardcoded Colors",description:"Flags fills and strokes using literal colors"},{id:"no-hardcoded-typography",name:"No Hardcoded Typography",description:"Flags unbound font properties on text nodes"},{id:"no-hardcoded-spacing",name:"No Hardcoded Spacing",description:"Flags auto-layout frames with hardcoded gaps/padding"},{id:"no-hardcoded-radii",name:"No Hardcoded Radii",description:"Flags nodes with hardcoded corner radius"},{id:"no-orphaned-variables",name:"No Orphaned Variables",description:"Flags bindings to non-existent tokens"},{id:"no-unknown-styles",name:"No Unknown Styles",description:"Flags styles not in the token set"}];function rt({config:e,onChange:n}){let o=s=>{n({...e,rules:{...e.rules,[s]:{...e.rules[s],enabled:!e.rules[s].enabled}}})},a=(s,r)=>{n({...e,rules:{...e.rules,[s]:{...e.rules[s],severity:r}}})},l=s=>{n({...e,[s]:!e[s]})};return t("div",{className:"config-panel",style:{flex:1,overflowY:"auto"},children:[t("div",{className:"config-section",children:[t("h3",{children:"Rules"}),Mt.map(s=>t("div",{style:{marginBottom:"var(--space-md)",padding:"var(--space-sm)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)"},children:[t("div",{className:"config-row",children:[t("div",{children:[t("div",{style:{fontWeight:500,fontSize:"var(--font-size-sm)"},children:s.name}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:s.description})]}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:e.rules[s.id].enabled,onChange:()=>o(s.id)}),t("span",{className:"slider"})]})]}),e.rules[s.id].enabled&&t("div",{className:"config-row",style:{marginTop:"var(--space-sm)"},children:[t("span",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Severity"}),t("select",{className:"select",value:e.rules[s.id].severity,onChange:r=>a(s.id,r.target.value),children:[t("option",{value:"error",children:"Error"}),t("option",{value:"warning",children:"Warning"}),t("option",{value:"info",children:"Info"})]})]})]},s.id))]}),t("div",{className:"config-section",children:[t("h3",{children:"Scan Options"}),t("div",{className:"config-row",children:[t("label",{children:"Skip hidden layers"}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:e.skipHiddenLayers,onChange:()=>l("skipHiddenLayers")}),t("span",{className:"slider"})]})]}),t("div",{className:"config-row",children:[t("label",{children:"Skip locked layers"}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:e.skipLockedLayers,onChange:()=>l("skipLockedLayers")}),t("span",{className:"slider"})]})]})]})]})}function lt({tokenCount:e}){let[n,o]=w(null),[a,l]=w(null),[s,r]=w(null),[d,u]=w(null),[c,g]=w(!1),[i,f]=w(!1),[m,b]=w(!1),[S,T]=w({createNew:!0,updateExisting:!0,deleteOrphans:!1}),_=R(x=>{parent.postMessage({pluginMessage:x},"*")},[]);G(()=>{g(!0),_({type:"GET_SYNC_STATUS"})},[_]),G(()=>{let x=E=>{let z=E.data.pluginMessage;if(z)switch(z.type){case"SYNC_STATUS":o(z),g(!1);break;case"SYNC_DIFF":l(z),g(!1);break;case"SYNC_PROGRESS":r(z);break;case"SYNC_COMPLETE":u(z),f(!1),r(null),_({type:"GET_SYNC_STATUS"});break;case"ERROR":g(!1),f(!1);break}};return window.addEventListener("message",x),()=>window.removeEventListener("message",x)},[_]);let h=R(()=>{g(!0),l(null),_({type:"GET_SYNC_DIFF",options:S}),b(!0)},[S,_]),C=R(()=>{f(!0),u(null),_({type:"START_SYNC",options:S})},[S,_]),F=R(()=>{f(!0),u(null),_({type:"RESET_VARIABLES"})},[_]),k=R(()=>{g(!0),_({type:"GET_SYNC_STATUS"})},[_]);return t("div",{className:"sync-panel",style:{flex:1,overflowY:"auto",padding:"var(--space-md)"},children:[t("div",{style:{marginBottom:"var(--space-lg)"},children:[t("h2",{style:{margin:0,fontSize:"var(--font-size-lg)"},children:"Variable Sync"}),t("p",{style:{margin:"var(--space-sm) 0 0",color:"var(--figma-color-text-secondary)",fontSize:"var(--font-size-sm)"},children:"Sync design tokens to Figma variables"})]}),t("div",{className:"config-section",style:{marginBottom:"var(--space-lg)"},children:[t("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"var(--space-sm)"},children:[t("h3",{style:{margin:0},children:"Current Status"}),t("button",{className:"btn btn-secondary",onClick:k,disabled:c,style:{padding:"var(--space-xs) var(--space-sm)",fontSize:"var(--font-size-xs)"},children:"Refresh"})]}),c&&!n?t("div",{style:{color:"var(--figma-color-text-secondary)",fontSize:"var(--font-size-sm)"},children:"Loading..."}):n?t("div",{style:{display:"flex",flexDirection:"column",gap:"var(--space-sm)"},children:[t("div",{style:{display:"flex",gap:"var(--space-md)"},children:[t("div",{style:{flex:1,padding:"var(--space-sm)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)",textAlign:"center"},children:[t("div",{style:{fontSize:"var(--font-size-lg)",fontWeight:600},children:e}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Tokens"})]}),t("div",{style:{flex:1,padding:"var(--space-sm)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)",textAlign:"center"},children:[t("div",{style:{fontSize:"var(--font-size-lg)",fontWeight:600},children:n.totalVariables}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Variables"})]}),t("div",{style:{flex:1,padding:"var(--space-sm)",backgroundColor:n.syncedPercentage>=100?"var(--figma-color-bg-success)":"var(--figma-color-bg-warning)",borderRadius:"var(--radius-sm)",textAlign:"center"},children:[t("div",{style:{fontSize:"var(--font-size-lg)",fontWeight:600},children:[n.syncedPercentage,"%"]}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Synced"})]})]}),n.collections.length>0&&t("div",{style:{marginTop:"var(--space-sm)"},children:[t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)",marginBottom:"var(--space-xs)"},children:"Collections"}),n.collections.map(x=>t("div",{style:{display:"flex",justifyContent:"space-between",padding:"var(--space-xs) var(--space-sm)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)",marginBottom:"var(--space-xs)",fontSize:"var(--font-size-sm)"},children:[t("span",{children:x.name}),t("span",{style:{color:"var(--figma-color-text-secondary)"},children:[x.variableCount," vars, ",x.modeCount," modes"]})]},x.name))]}),n.collections.length===0&&t("div",{style:{padding:"var(--space-md)",backgroundColor:"var(--figma-color-bg-warning)",borderRadius:"var(--radius-sm)",fontSize:"var(--font-size-sm)"},children:'No variable collections found. Click "Sync Now" to create them.'})]}):null]}),t("div",{className:"config-section",style:{marginBottom:"var(--space-lg)"},children:[t("h3",{children:"Sync Options"}),t("div",{className:"config-row",style:{marginBottom:"var(--space-sm)"},children:[t("div",{children:[t("div",{style:{fontWeight:500,fontSize:"var(--font-size-sm)"},children:"Create new variables"}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Add variables for new tokens"})]}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:S.createNew,onChange:()=>T(x=>({...x,createNew:!x.createNew}))}),t("span",{className:"slider"})]})]}),t("div",{className:"config-row",style:{marginBottom:"var(--space-sm)"},children:[t("div",{children:[t("div",{style:{fontWeight:500,fontSize:"var(--font-size-sm)"},children:"Update existing variables"}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Update values when tokens change"})]}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:S.updateExisting,onChange:()=>T(x=>({...x,updateExisting:!x.updateExisting}))}),t("span",{className:"slider"})]})]}),t("div",{className:"config-row",children:[t("div",{children:[t("div",{style:{fontWeight:500,fontSize:"var(--font-size-sm)"},children:"Delete orphaned variables"}),t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:"Remove variables not in token source"})]}),t("label",{className:"toggle",children:[t("input",{type:"checkbox",checked:S.deleteOrphans,onChange:()=>T(x=>({...x,deleteOrphans:!x.deleteOrphans}))}),t("span",{className:"slider"})]})]})]}),m&&t("div",{className:"config-section",style:{marginBottom:"var(--space-lg)"},children:[t("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"var(--space-sm)"},children:[t("h3",{style:{margin:0},children:"Preview Changes"}),t("button",{className:"btn btn-secondary",onClick:()=>b(!1),style:{padding:"var(--space-xs) var(--space-sm)",fontSize:"var(--font-size-xs)"},children:"Hide"})]}),c?t("div",{style:{color:"var(--figma-color-text-secondary)",fontSize:"var(--font-size-sm)"},children:"Analyzing..."}):a?t("div",{style:{fontSize:"var(--font-size-sm)"},children:[t("div",{style:{display:"flex",gap:"var(--space-md)",marginBottom:"var(--space-sm)"},children:[t("span",{style:{color:"var(--figma-color-text-success)"},children:["+",a.toCreate.length," create"]}),t("span",{style:{color:"var(--figma-color-text-warning)"},children:["~",a.toUpdate.length," update"]}),t("span",{style:{color:"var(--figma-color-text-danger)"},children:["-",a.toDelete.length," delete"]}),t("span",{style:{color:"var(--figma-color-text-secondary)"},children:[a.unchanged," unchanged"]})]}),a.toCreate.length>0&&t("details",{style:{marginBottom:"var(--space-sm)"},children:[t("summary",{style:{cursor:"pointer",color:"var(--figma-color-text-success)"},children:["To Create (",a.toCreate.length,")"]}),t("div",{style:{maxHeight:"100px",overflowY:"auto",marginTop:"var(--space-xs)"},children:[a.toCreate.slice(0,20).map((x,E)=>t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:x.path},E)),a.toCreate.length>20&&t("div",{style:{fontSize:"var(--font-size-xs)",fontStyle:"italic"},children:["...and ",a.toCreate.length-20," more"]})]})]}),a.toUpdate.length>0&&t("details",{style:{marginBottom:"var(--space-sm)"},children:[t("summary",{style:{cursor:"pointer",color:"var(--figma-color-text-warning)"},children:["To Update (",a.toUpdate.length,")"]}),t("div",{style:{maxHeight:"100px",overflowY:"auto",marginTop:"var(--space-xs)"},children:a.toUpdate.slice(0,20).map((x,E)=>t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:x.path},E))})]}),a.toDelete.length>0&&t("details",{children:[t("summary",{style:{cursor:"pointer",color:"var(--figma-color-text-danger)"},children:["To Delete (",a.toDelete.length,")"]}),t("div",{style:{maxHeight:"100px",overflowY:"auto",marginTop:"var(--space-xs)"},children:a.toDelete.slice(0,20).map((x,E)=>t("div",{style:{fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:x.path},E))})]})]}):null]}),s&&t("div",{style:{padding:"var(--space-md)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)",marginBottom:"var(--space-lg)"},children:[t("div",{style:{marginBottom:"var(--space-sm)",fontSize:"var(--font-size-sm)"},children:s.message}),t("div",{style:{height:"4px",backgroundColor:"var(--figma-color-border)",borderRadius:"2px",overflow:"hidden"},children:t("div",{style:{height:"100%",width:`${s.total>0?s.current/s.total*100:0}%`,backgroundColor:"var(--figma-color-bg-brand)",transition:"width 0.2s"}})}),t("div",{style:{marginTop:"var(--space-xs)",fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:[s.current," / ",s.total]})]}),d&&t("div",{style:{padding:"var(--space-md)",backgroundColor:d.success?"var(--figma-color-bg-success)":"var(--figma-color-bg-danger)",borderRadius:"var(--radius-sm)",marginBottom:"var(--space-lg)"},children:[t("div",{style:{fontWeight:500,marginBottom:"var(--space-sm)"},children:d.success?"Sync Complete":"Sync Failed"}),t("div",{style:{fontSize:"var(--font-size-sm)",display:"flex",gap:"var(--space-md)"},children:[t("span",{children:["Created: ",d.created]}),t("span",{children:["Updated: ",d.updated]}),t("span",{children:["Deleted: ",d.deleted]}),t("span",{children:["Skipped: ",d.skipped]})]}),d.errors.length>0&&t("details",{style:{marginTop:"var(--space-sm)"},children:[t("summary",{style:{cursor:"pointer",fontSize:"var(--font-size-sm)"},children:[d.errors.length," errors"]}),t("div",{style:{maxHeight:"100px",overflowY:"auto",marginTop:"var(--space-xs)",fontSize:"var(--font-size-xs)"},children:d.errors.map((x,E)=>t("div",{children:x},E))})]})]}),t("div",{style:{display:"flex",gap:"var(--space-sm)",flexWrap:"wrap"},children:[t("button",{className:"btn btn-secondary",onClick:h,disabled:c||i,style:{flex:1},children:"Preview Changes"}),t("button",{className:"btn btn-primary",onClick:C,disabled:c||i,style:{flex:1},children:i?"Syncing...":"Sync Now"})]}),t("div",{style:{marginTop:"var(--space-sm)"},children:t("button",{className:"btn btn-secondary",onClick:F,disabled:c||i,style:{width:"100%"},children:"Reset Variables to Token Values"})}),t("div",{style:{marginTop:"var(--space-lg)",padding:"var(--space-md)",backgroundColor:"var(--figma-color-bg)",borderRadius:"var(--radius-sm)",fontSize:"var(--font-size-xs)",color:"var(--figma-color-text-secondary)"},children:[t("div",{style:{fontWeight:500,marginBottom:"var(--space-xs)"},children:"Workflow"}),t("ol",{style:{margin:0,paddingLeft:"var(--space-md)"},children:[t("li",{children:"Sync tokens to create/update Figma variables"}),t("li",{children:'Use "Lint" tab to find hardcoded values in designs'}),t("li",{children:"Fix violations to bind to the synced variables"}),t("li",{children:"Reset variables when token values change"})]})]})]})}var zt="https://raw.githubusercontent.com/atlanticwaters/Tokens-Studio-Sandbox/main",Ut=["core/colors","core/neutrals","core/border","core/elevation","core/font-family","core/font-size","core/font-weight","core/interaction","core/letter-spacing","core/line-height","core/position","core/spacing","semantic/light","semantic/dark","component/accordion","component/accordionbody","component/action","component/alert","component/badge","component/beta-list-item-content","component/beta-list-item-media","component/bottom-actions","component/button","component/button-quantity","component/callout","component/cardheading","component/checkbox","component/chevron-xs","component/content-card","component/content-card-v2","component/field-label","component/icon-button","component/image","component/image-container","component/indicator","component/input","component/input-adornment","component/input-child","component/list-item","component/menu-item","component/mini-product-card","component/notification","component/pill","component/pillmedia","component/plp-card","component/popoverbeak","component/pricing-action","component/progress-bar","component/progress-bar-track","component/quantity-button","component/quantity-picker","component/radio-button","component/rating-increment","component/rating-meter","component/rating-star-half","component/switch","component/tab","component/tab-group","component/text-input-field","component/tile","component/tilecontent","component/tilemedia","component/tooltip"];async function Ht(e){let n=await fetch(e);if(!n.ok)throw new Error(`Failed to fetch ${e}: ${n.status} ${n.statusText}`);return n.json()}async function ct(){let e=[];for(let n of Ut)try{let o=`${zt}/${n}.json`;console.log(`[UI] Loading tokens from: ${o}`);let a=await Ht(o);e.push({path:n,content:a})}catch(o){console.warn(`[UI] Failed to load token file ${n}:`,o)}return console.log(`[UI] Loaded ${e.length} token files`),e}function dt(){let[e,n]=w(Je()),[o,a]=w(null),[l,s]=w(!1),[r,d]=w(!1),[u,c]=w({processed:0,total:0}),[g,i]=w("current_page"),[f,m]=w("results"),[b,S]=w("rule"),[T,_]=w(0),[h,C]=w(new Set),[F,k]=w(new Set),[x,E]=w([]),[z,H]=w(null),[B,V]=w(!1),[y,P]=w(!1),N=R(v=>{parent.postMessage({pluginMessage:v},"*")},[]),Y=R(()=>{s(!0),a(null),N({type:"START_SCAN",scope:{type:g},config:e})},[g,e,N]);G(()=>{let v=I=>{let p=I.data.pluginMessage;if(p)switch(p.type){case"SCAN_STARTED":c({processed:0,total:p.totalNodes}),C(new Set),E([]),H(null),V(!1);break;case"SCAN_PROGRESS":c({processed:p.processed,total:p.total});break;case"SCAN_COMPLETE":a(p.results),s(!1),m("results");break;case"NODE_SELECTED":break;case"TOKENS_LOADED":_(p.tokenCount);break;case"FIX_APPLIED":console.log("[UI] FIX_APPLIED received:",p),d(!1),H(null);let W={nodeId:p.nodeId,nodeName:p.nodeName||"Unknown",property:p.property,actionType:p.actionType||"rebind",beforeValue:p.beforeValue||"unknown",afterValue:p.afterValue||"unknown",status:p.success?"success":"failed",errorMessage:p.message,timestamp:Date.now()};if(E(U=>[...U,W]),p.success)C(U=>{let J=new Set(U),q=p.nodeId+":"+p.property;if(J.add(q),p.actionType==="apply-style"){let me=["fontSize","lineHeight","letterSpacing"];for(let ge of me)J.add(p.nodeId+":"+ge)}return J});else{let U=p.message||"Unknown error occurred";console.error("Fix failed:",U),alert("Fix failed: "+U)}break;case"FIX_PROGRESS":H({current:p.current,total:p.total}),E(U=>[...U,p.currentAction]);break;case"BULK_FIX_COMPLETE":d(!1),H(null),p.actions&&p.actions.length>0&&V(!0),p.failed>0&&(console.error("Bulk fix errors:",p.errors),alert("Fixed "+p.successful+" issues. "+p.failed+` failed.
+
+`+p.errors.slice(0,3).join(`
+`))),p.successful>0&&Y();break;case"BULK_DETACH_COMPLETE":d(!1),p.failed>0&&(console.error("Bulk detach errors:",p.errors),alert("Detached "+p.successful+" styles. "+p.failed+` failed.
+
+`+p.errors.slice(0,3).join(`
+`))),p.successful>0&&Y();break;case"IGNORED_VIOLATIONS_LOADED":k(new Set(p.ignoredKeys)),P(!0),console.log("[UI] Loaded",p.ignoredKeys.length,"ignored violations from storage");break;case"ERROR":console.error("Plugin error:",p.message),s(!1),d(!1);break}};return window.addEventListener("message",v),()=>window.removeEventListener("message",v)},[Y]),G(()=>{async function v(){try{console.log("[UI] Starting token load...");let I=await ct();console.log("[UI] Token files loaded, sending to plugin..."),N({type:"TOKEN_FILES_LOADED",files:I.map(p=>({path:p.path,content:p.content}))})}catch(I){console.error("[UI] Failed to load tokens:",I)}}v()},[N]),G(()=>{N({type:"LOAD_IGNORED_VIOLATIONS"})},[N]),G(()=>{y&&N({type:"SAVE_IGNORED_VIOLATIONS",ignoredKeys:Array.from(F)})},[F,y,N]);let ue=R(v=>{N({type:"SELECT_NODE",nodeId:v})},[N]),Q=R(v=>{v.suggestedToken&&(d(!0),N({type:"APPLY_FIX",nodeId:v.nodeId,property:v.property,tokenPath:v.suggestedToken,ruleId:v.ruleId}))},[N]),K=R(v=>{let I=v.filter(p=>p.suggestedToken);I.length!==0&&(d(!0),N({type:"APPLY_BULK_FIX",fixes:I.map(p=>({nodeId:p.nodeId,property:p.property,tokenPath:p.suggestedToken,ruleId:p.ruleId}))}))},[N]),pe=R(v=>{d(!0),N({type:"UNBIND_VARIABLE",nodeId:v.nodeId,property:v.property})},[N]),M=R(v=>{d(!0),N({type:"DETACH_STYLE",nodeId:v.nodeId,property:v.property})},[N]),ut=R(v=>{let I=v.filter(p=>p.canDetach);I.length!==0&&(d(!0),N({type:"BULK_DETACH_STYLES",detaches:I.map(p=>({nodeId:p.nodeId,property:p.property}))}))},[N]),pt=R(v=>{v.suggestedTextStyle&&(d(!0),N({type:"APPLY_TEXT_STYLE",nodeId:v.nodeId,textStyleId:v.suggestedTextStyle.id,property:v.property}))},[N]),mt=R(v=>{let I=v.nodeId+":"+v.property;k(W=>{let U=new Set(W);return U.add(I),U});let p={nodeId:v.nodeId,nodeName:v.nodeName,property:v.property,actionType:"ignore",beforeValue:String(v.currentValue),afterValue:"ignored",status:"success",timestamp:Date.now()};E(W=>[...W,p])},[]),gt=R(()=>{if(!o)return;let v=o.violations.filter(I=>I.isPathMismatch&&I.normalizedMatchPath&&!h.has(I.nodeId+":"+I.property));v.length!==0&&(d(!0),N({type:"AUTO_FIX_PATH_MISMATCHES",fixes:v.map(I=>({nodeId:I.nodeId,property:I.property,tokenPath:I.normalizedMatchPath}))}))},[o,h,N]),ft=R(()=>{E([])},[]),_t=R(v=>{if(!o)return;let I,p,W;if(v==="json")I=JSON.stringify(o,null,2),p="lint-results.json",W="application/json";else{let me=["Rule","Severity","Node Name","Node Type","Layer Path","Property","Current Value","Message","Suggested Token"],ge=o.violations.map(O=>[O.ruleId,O.severity,O.nodeName,O.nodeType,O.layerPath,O.property,String(O.currentValue),O.message,O.suggestedToken||""]);I=[me,...ge].map(O=>O.map(ht=>'"'+ht.replace(/"/g,'""')+'"').join(",")).join(`
+`),p="lint-results.csv",W="text/csv"}let U=new Blob([I],{type:W}),J=URL.createObjectURL(U),q=document.createElement("a");q.href=J,q.download=p,document.body.appendChild(q),q.click(),document.body.removeChild(q),URL.revokeObjectURL(J)},[o]),vt=R(v=>{n(v),N({type:"UPDATE_CONFIG",config:v})},[N]),yt=o?.violations.filter(v=>v.suggestedToken&&!h.has(v.nodeId+":"+v.property)).length||0;return t("div",{className:"app",children:[t(Ze,{onScan:Y,isScanning:l,scope:g,onScopeChange:i,onExport:_t,hasResults:o!==null,view:f,onViewChange:m}),l&&t(tt,{processed:u.processed,total:u.total}),f==="results"&&t(j,{children:[o&&t(et,{results:o,fixedViolations:h,ignoredViolations:F}),o&&o.violations.length>0&&t(j,{children:[t(nt,{violations:o.violations,fixedViolations:h,isFixing:r,onFixAll:()=>K(o.violations),onAutoFixPathMismatches:gt,fixProgress:z,showActivityLog:B,onToggleActivityLog:()=>V(!B),activityCount:x.length}),t(ot,{actions:x,isVisible:B,onClose:()=>V(!1),onClear:ft})]}),t(it,{results:o,groupBy:b,onGroupByChange:S,onSelectNode:ue,onFix:Q,onBulkFix:K,onUnbind:pe,onDetach:M,onBulkDetach:ut,onApplyStyle:pt,onIgnore:mt,fixedViolations:h,ignoredViolations:F,isFixing:r,fixableCount:yt})]}),f==="config"&&t(rt,{config:e,onChange:vt}),f==="sync"&&t(lt,{tokenCount:T})]})}He(t(dt,{}),document.getElementById("app"));})();
+</script>
+  </body>
+</html>
