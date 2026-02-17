@@ -250,6 +250,8 @@ function PairingSection({
         style={{
           fontSize: 18,
           fontWeight: 600,
+          fontFamily: FONT_OPEN_SANS,
+          textTransform: 'capitalize' as const,
           color: isDarkMode ? '#fbfaf9' : '#252524',
           marginBottom: 4,
           cursor: 'pointer',
@@ -452,6 +454,7 @@ export function PairingsDisplay({ parsedTokens, isDarkMode }: PairingsDisplayPro
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 24,
     fontWeight: 700,
+    fontFamily: FONT_OPEN_SANS,
     marginBottom: 8,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     borderBottom: '2px solid #f96302',

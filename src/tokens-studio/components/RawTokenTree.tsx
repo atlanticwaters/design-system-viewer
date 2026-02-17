@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TokensStudioFile, isToken, isTokenGroup } from '../types/tokens';
+import { FONT_OPEN_SANS } from '../utils/fonts';
 
 interface RawTokenTreeProps {
   tokens: TokensStudioFile;
@@ -129,7 +130,8 @@ export function RawTokenTree({ tokens }: RawTokenTreeProps) {
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 24,
     fontWeight: 700,
-    marginBottom: 24,
+    fontFamily: FONT_OPEN_SANS,
+    marginBottom: 8,
     color: '#252524',
     borderBottom: '2px solid #f96302',
     paddingBottom: 8,

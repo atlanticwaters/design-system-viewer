@@ -51,7 +51,7 @@ function TypographySample({ name, style, semantic }: TypographySampleProps) {
 export function Typography({ semantic }: TypographyProps) {
   return (
     <section id="typography" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Typography
       </h2>
 
@@ -72,7 +72,7 @@ export function Typography({ semantic }: TypographyProps) {
       }}>
         {/* Hero Styles */}
         <div>
-          <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Hero Styles</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Hero Styles</h3>
           <TypographySample name="Hero 1" style={typography.hero1} semantic={semantic} />
           <TypographySample name="Hero 2" style={typography.hero2} semantic={semantic} />
           <TypographySample name="Hero 3" style={typography.hero3} semantic={semantic} />
@@ -82,7 +82,7 @@ export function Typography({ semantic }: TypographyProps) {
 
         {/* Heading Styles */}
         <div>
-          <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Heading Styles</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Heading Styles</h3>
           <TypographySample name="Heading 1" style={typography.h1} semantic={semantic} />
           <TypographySample name="Heading 2" style={typography.h2} semantic={semantic} />
           <TypographySample name="Heading 3" style={typography.h3} semantic={semantic} />
@@ -93,7 +93,7 @@ export function Typography({ semantic }: TypographyProps) {
 
         {/* Body Styles */}
         <div>
-          <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Body Styles</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Body Styles</h3>
           <TypographySample name="Body XL" style={typography.bodyXl} semantic={semantic} />
           <TypographySample name="Body LG" style={typography.bodyLg} semantic={semantic} />
           <TypographySample name="Body MD" style={typography.bodyMd} semantic={semantic} />
@@ -103,7 +103,7 @@ export function Typography({ semantic }: TypographyProps) {
 
         {/* Body Bold Styles */}
         <div>
-          <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Body Bold Styles</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Body Bold Styles</h3>
           <TypographySample name="Body LG Bold" style={typography.bodyLgBold} semantic={semantic} />
           <TypographySample name="Body MD Bold" style={typography.bodyMdBold} semantic={semantic} />
           <TypographySample name="Body SM Bold" style={typography.bodySmBold} semantic={semantic} />
@@ -112,7 +112,7 @@ export function Typography({ semantic }: TypographyProps) {
 
         {/* Label Styles */}
         <div>
-          <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Label Styles</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Label Styles</h3>
           <TypographySample name="Label" style={typography.label} semantic={semantic} />
           <TypographySample name="Label LG" style={typography.labelLg} semantic={semantic} />
         </div>
@@ -120,7 +120,7 @@ export function Typography({ semantic }: TypographyProps) {
 
       {/* Reference Tables */}
       <div style={{ marginTop: 32 }}>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Reference</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Reference</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',

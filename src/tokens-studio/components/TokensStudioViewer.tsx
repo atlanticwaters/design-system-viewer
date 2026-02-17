@@ -13,12 +13,17 @@ import { AllTokensDisplay } from './AllTokensDisplay';
 import { TokenTableDisplay } from './TokenTableDisplay';
 import { SemanticTokensDisplay } from './SemanticTokensDisplay';
 import { PairingsDisplay } from './PairingsDisplay';
+import { TokensCascadeDisplay } from './TokensCascadeDisplay';
+import { PlatformPassport } from '../../components/visualizations';
+import { semanticLight, semanticDark } from '../../tokens/colors';
 import { FONT_OPEN_SANS } from '../utils/fonts';
 
-type Section = 'all' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw';
+type Section = 'all' | 'cascade' | 'passport' | 'semantic' | 'pairings' | 'colors' | 'typography' | 'spacing' | 'radius' | 'border' | 'effects' | 'components' | 'table' | 'raw';
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'all', label: 'Overview' },
+  { id: 'cascade', label: 'Cascade' },
+  { id: 'passport', label: 'Platform Passport' },
   { id: 'semantic', label: 'Semantic' },
   { id: 'pairings', label: 'Pairings' },
   { id: 'colors', label: 'Colors' },
@@ -58,31 +63,55 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
 
   const [activeSection, setActiveSection] = useState<Section>('all');
 
-  // If no tokens loaded, show input UI
-  if (!parsedTokens || !tokensFile) {
+  const hasTokens = !!(parsedTokens && tokensFile);
+
+  // Sections that don't require loaded tokens
+  const standaloneSection = activeSection === 'cascade' || activeSection === 'passport';
+
+  // If no tokens loaded AND not on a standalone tab, show input UI
+  if (!hasTokens && !standaloneSection) {
     return (
       <div style={{
         minHeight: '100vh',
         backgroundColor: '#f8f5f2',
       }}>
-        {onBack && (
-          <div style={{ padding: 16 }}>
+        {/* Minimal nav bar so Cascade is always reachable */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 24px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e5e1de',
+        }}>
+          {onBack && (
             <button
               onClick={onBack}
               style={{
-                padding: '8px 16px',
-                fontSize: 14,
-                fontFamily: FONT_OPEN_SANS,
-                borderRadius: 6,
-                border: '1px solid #bab7b4',
-                backgroundColor: '#ffffff',
-                cursor: 'pointer',
+                padding: '8px 16px', fontSize: 14, fontFamily: FONT_OPEN_SANS,
+                borderRadius: 6, border: '1px solid #bab7b4',
+                backgroundColor: '#ffffff', cursor: 'pointer',
               }}
             >
               ← Back to Hardcoded Viewer
             </button>
-          </div>
-        )}
+          )}
+          <div style={{ flex: 1 }} />
+          {SECTIONS.filter(s => s.id === 'cascade' || s.id === 'passport' || s.id === 'all').map(section => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              style={{
+                padding: '8px 16px', fontSize: 14, fontFamily: FONT_OPEN_SANS,
+                fontWeight: activeSection === section.id ? 600 : 400,
+                borderRadius: 6, border: 'none', cursor: 'pointer',
+                backgroundColor: activeSection === section.id ? '#252524' : 'transparent',
+                color: activeSection === section.id ? '#ffffff' : '#585756',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {section.label}
+            </button>
+          ))}
+        </div>
         <TokenInput
           onLoadString={loadFromString}
           onLoadUrl={loadFromUrl}
@@ -170,7 +199,7 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
     overflowX: 'auto',
   };
 
-  const getNavButtonStyle = (isActive: boolean): React.CSSProperties => ({
+  const getNavButtonStyle = (isActive: boolean, requiresTokens: boolean = false): React.CSSProperties => ({
     padding: '8px 16px',
     fontSize: 14,
     fontFamily: FONT_OPEN_SANS,
@@ -182,15 +211,19 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
       : 'transparent',
     color: isActive
       ? '#ffffff'
-      : (isDarkMode ? '#bab7b4' : '#585756'),
-    cursor: 'pointer',
+      : (requiresTokens && !hasTokens)
+        ? (isDarkMode ? '#4a4a4a' : '#d0d0d0')
+        : (isDarkMode ? '#bab7b4' : '#585756'),
+    cursor: (requiresTokens && !hasTokens) ? 'default' : 'pointer',
     whiteSpace: 'nowrap',
+    opacity: (requiresTokens && !hasTokens) ? 0.5 : 1,
   });
 
   const mainStyle: React.CSSProperties = {
-    maxWidth: 1200,
+    maxWidth: (activeSection === 'cascade' || activeSection === 'passport') ? 1400 : 1200,
     margin: '0 auto',
     padding: '24px',
+    transition: 'max-width 0.3s ease',
   };
 
   return (
@@ -231,59 +264,77 @@ export function TokensStudioViewer({ onBack }: TokensStudioViewerProps) {
           </div>
         </div>
         <nav style={navStyle}>
-          {SECTIONS.map(section => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              style={getNavButtonStyle(activeSection === section.id)}
-            >
-              {section.label}
-            </button>
-          ))}
+          {SECTIONS.map(section => {
+            const needsTokens = section.id !== 'cascade' && section.id !== 'passport';
+            const disabled = needsTokens && !hasTokens;
+            return (
+              <button
+                key={section.id}
+                onClick={() => { if (!disabled) setActiveSection(section.id); }}
+                style={getNavButtonStyle(activeSection === section.id, needsTokens)}
+              >
+                {section.label}
+              </button>
+            );
+          })}
         </nav>
       </header>
 
       <main style={mainStyle}>
         <div key={activeSection} className="tab-content">
-          {activeSection === 'all' && (
+          {activeSection === 'cascade' && (
+            <TokensCascadeDisplay isDarkMode={isDarkMode} />
+          )}
+          {activeSection === 'passport' && (
+            <PlatformPassport semantic={isDarkMode ? semanticDark : semanticLight} isDark={isDarkMode} />
+          )}
+          {hasTokens && activeSection === 'all' && (
             <AllTokensDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'semantic' && (
+          {hasTokens && activeSection === 'semantic' && (
             <SemanticTokensDisplay
               lightTokens={parsedTokens.colors.semantic.light}
               darkTokens={parsedTokens.colors.semantic.dark}
               isDarkMode={isDarkMode}
             />
           )}
-          {activeSection === 'pairings' && (
+          {hasTokens && activeSection === 'pairings' && (
             <PairingsDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'colors' && (
+          {hasTokens && activeSection === 'colors' && (
             <ColorTokensDisplay colors={parsedTokens.colors} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'typography' && (
+          {hasTokens && activeSection === 'typography' && (
             <TypographyTokensDisplay typography={parsedTokens.typography} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'spacing' && (
+          {hasTokens && activeSection === 'spacing' && (
             <SpacingTokensDisplay spacing={parsedTokens.spacing} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'radius' && (
+          {hasTokens && activeSection === 'radius' && (
             <RadiusTokensDisplay radius={parsedTokens.radius} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'border' && (
+          {hasTokens && activeSection === 'border' && (
             <BorderTokensDisplay borderWidth={parsedTokens.borderWidth} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'effects' && (
+          {hasTokens && activeSection === 'effects' && (
             <ElevationTokensDisplay effects={parsedTokens.effects} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'components' && (
+          {hasTokens && activeSection === 'components' && (
             <ComponentTokensDisplay components={parsedTokens.components} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'table' && (
+          {hasTokens && activeSection === 'table' && (
             <TokenTableDisplay parsedTokens={parsedTokens} isDarkMode={isDarkMode} />
           )}
-          {activeSection === 'raw' && (
+          {hasTokens && activeSection === 'raw' && (
             <RawTokenTree tokens={tokensFile} />
+          )}
+          {!hasTokens && !standaloneSection && (
+            <div style={{
+              padding: 48, textAlign: 'center',
+              color: isDarkMode ? '#8b949e' : '#787675', fontFamily: FONT_OPEN_SANS,
+            }}>
+              Load a token file to view this tab.
+            </div>
           )}
         </div>
       </main>

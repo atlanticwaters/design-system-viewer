@@ -76,7 +76,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
   return (
     <section id="outlines" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Outlines & Borders
       </h2>
 
@@ -103,7 +103,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
       }}>
         {/* Standard Outlines */}
         <div>
-          <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Standard Outlines</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Standard Outlines</h3>
           <div style={{
             padding: 16,
             borderRadius: 8,
@@ -117,7 +117,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
         {/* Focus Rings */}
         <div>
-          <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Focus Rings</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Focus Rings</h3>
           <div style={{
             padding: 16,
             borderRadius: 8,
@@ -131,7 +131,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
         {/* Semantic Borders */}
         <div>
-          <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Semantic Borders</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Semantic Borders</h3>
           <div style={{
             padding: 16,
             borderRadius: 8,
@@ -148,7 +148,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
         {/* Structural Borders */}
         <div>
-          <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Structural Borders</h3>
+          <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Structural Borders</h3>
           <div style={{
             padding: 16,
             borderRadius: 8,
@@ -163,7 +163,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
       {/* Input States Demo */}
       <div style={{ marginTop: 32 }}>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Input Border States</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Input Border States</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -182,7 +182,7 @@ export function Outlines({ semantic, isDark }: OutlinesProps) {
 
       {/* Border Widths */}
       <div style={{ marginTop: 32 }}>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Border Widths</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Border Widths</h3>
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',

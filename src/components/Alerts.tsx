@@ -109,7 +109,7 @@ function Alert({ variant, title, message, semantic, showIcon = true, dismissible
 export function Alerts({ semantic }: AlertsProps) {
   return (
     <section id="alerts" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Alerts & Notifications
       </h2>
 

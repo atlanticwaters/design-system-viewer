@@ -94,7 +94,7 @@ export function Buttons({ semantic }: ButtonsProps) {
 
   return (
     <section id="buttons" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Buttons
       </h2>
 
@@ -115,7 +115,7 @@ export function Buttons({ semantic }: ButtonsProps) {
       </div>
 
       {/* Button Variants */}
-      <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Variants</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Variants</h3>
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -134,7 +134,7 @@ export function Buttons({ semantic }: ButtonsProps) {
       </div>
 
       {/* Button Sizes */}
-      <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Sizes</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Sizes</h3>
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -157,7 +157,7 @@ export function Buttons({ semantic }: ButtonsProps) {
       </div>
 
       {/* Button States */}
-      <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>States</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>States</h3>
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -192,7 +192,7 @@ export function Buttons({ semantic }: ButtonsProps) {
       </div>
 
       {/* With Icons */}
-      <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>With Icons</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>With Icons</h3>
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -220,7 +220,7 @@ export function Buttons({ semantic }: ButtonsProps) {
       </div>
 
       {/* Button Group */}
-      <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Button Group</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Button Group</h3>
       <div style={{
         display: 'inline-flex',
         borderRadius: borderRadius.full,

@@ -10,7 +10,7 @@ interface NavigationProps {
 export function Navigation({ semantic }: NavigationProps) {
   return (
     <section id="navigation" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Navigation
       </h2>
 

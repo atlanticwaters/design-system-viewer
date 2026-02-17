@@ -355,19 +355,6 @@ function SemanticTokenCard({
   );
 }
 
-// Get category icon
-function getCategoryIcon(category: string): string {
-  const cat = category.toLowerCase();
-  if (cat.includes('icon')) return '🎯';
-  if (cat.includes('text')) return '✏️';
-  if (cat.includes('border')) return '🔲';
-  if (cat.includes('elevation') || cat.includes('shadow')) return '📦';
-  if (cat.includes('background') || cat.includes('surface') || cat.includes('container')) return '🎨';
-  if (cat.includes('button')) return '🔘';
-  if (cat.includes('feedback') || cat.includes('status')) return '💬';
-  return '⬛';
-}
-
 // Category section with cards and collapsible header
 function CategorySection({
   category,
@@ -416,11 +403,12 @@ function CategorySection({
         >
           ▶
         </span>
-        <span style={{ fontSize: 20 }}>{getCategoryIcon(category)}</span>
         <h3
           style={{
             fontSize: 18,
             fontWeight: 600,
+            fontFamily: FONT_OPEN_SANS,
+            textTransform: 'capitalize',
             color: isDarkMode ? '#fbfaf9' : '#252524',
             margin: 0,
             flex: 1,
@@ -555,6 +543,7 @@ export function SemanticTokensDisplay({
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 24,
     fontWeight: 700,
+    fontFamily: FONT_OPEN_SANS,
     marginBottom: 8,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     borderBottom: '2px solid #f96302',
@@ -565,7 +554,8 @@ export function SemanticTokensDisplay({
     fontSize: 14,
     fontFamily: FONT_OPEN_SANS,
     color: isDarkMode ? '#8b949e' : '#787675',
-    marginBottom: 24,
+    marginBottom: 20,
+    lineHeight: 1.6,
   };
 
   if (totalTokens === 0) {

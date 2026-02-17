@@ -4,6 +4,7 @@
 
 export const fontFamily = {
   primary: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  display: "'THD LgVar', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
 };
 
 export const fontWeight = {
@@ -163,35 +164,35 @@ export const typography = {
 
   // Hero styles
   hero5: {
-    fontFamily: fontFamily.primary,
+    fontFamily: fontFamily.display,
     fontSize: fontSize.hero5,
     fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.none,
     letterSpacing: letterSpacing.condensed,
   },
   hero4: {
-    fontFamily: fontFamily.primary,
+    fontFamily: fontFamily.display,
     fontSize: fontSize.hero4,
     fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.tight,
     letterSpacing: letterSpacing.normal,
   },
   hero3: {
-    fontFamily: fontFamily.primary,
+    fontFamily: fontFamily.display,
     fontSize: fontSize.hero3,
     fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.tight,
     letterSpacing: letterSpacing.normal,
   },
   hero2: {
-    fontFamily: fontFamily.primary,
+    fontFamily: fontFamily.display,
     fontSize: fontSize.hero2,
     fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.tight,
     letterSpacing: letterSpacing.normal,
   },
   hero1: {
-    fontFamily: fontFamily.primary,
+    fontFamily: fontFamily.display,
     fontSize: fontSize.hero1,
     fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.tight,

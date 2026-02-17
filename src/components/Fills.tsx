@@ -191,7 +191,7 @@ export function Fills({ semantic, isDark }: FillsProps) {
 
   return (
     <section id="fills" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Fill Roles
       </h2>
 
@@ -215,7 +215,7 @@ export function Fills({ semantic, isDark }: FillsProps) {
       }}>
         {fillGroups.map(group => (
           <div key={group.title}>
-            <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>{group.title}</h3>
+            <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>{group.title}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {group.items.map(item => (
                 <FillSwatch

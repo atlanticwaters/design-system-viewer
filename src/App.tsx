@@ -15,8 +15,8 @@ import {
   States,
   Pairings,
   TokenCascade,
-  PlatformPassport,
 } from './components';
+import { PlatformPassport } from './components/visualizations';
 import { semanticLight, semanticDark, colors } from './tokens/colors';
 import { typography } from './tokens/typography';
 import { spacing } from './tokens/spacing';
@@ -270,7 +270,6 @@ function App() {
         <Navigation semantic={semantic} />
         <Toggles semantic={semantic} />
         <Alerts semantic={semantic} />
-
         <TokenCascade semantic={semantic} isDark={isDarkMode} />
         <PlatformPassport semantic={semantic} isDark={isDarkMode} />
 

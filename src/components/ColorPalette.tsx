@@ -129,7 +129,7 @@ interface ColorPaletteProps {
 export function ColorPalette({ semantic, isDarkMode }: ColorPaletteProps) {
   return (
     <section id="colors" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8 }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8 }}>
         Colors
       </h2>
 
@@ -138,7 +138,7 @@ export function ColorPalette({ semantic, isDarkMode }: ColorPaletteProps) {
         title={isDarkMode ? "Semantic Colors (Dark Mode)" : "Semantic Colors (Light Mode)"}
       />
 
-      <h3 style={{ marginBottom: 16, marginTop: 32 }}>Core Palettes</h3>
+      <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, marginTop: 32 }}>Core Palettes</h3>
 
       <ColorRow name="Brand (Primary)" palette={colors.brand} />
       <ColorRow name="Bottle Green (Secondary/Success)" palette={colors.bottleGreen} />

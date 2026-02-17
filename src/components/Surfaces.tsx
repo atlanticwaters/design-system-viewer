@@ -119,7 +119,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
   return (
     <section id="surfaces" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Surfaces & Containers
       </h2>
 
@@ -141,7 +141,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
       {/* Surface Container Hierarchy (Material 3) */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>
           Surface Container Hierarchy
           <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: semantic.onSurfaceSecondary }}>
             (Material 3)
@@ -162,7 +162,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
       {/* Brightness Variants */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Brightness Variants</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Brightness Variants</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
@@ -177,7 +177,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
       {/* Scrim & Overlays */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>Scrim & Overlays</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>Scrim & Overlays</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
@@ -191,7 +191,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
       {/* iOS Materials */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>
           Materials
           <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: semantic.onSurfaceSecondary }}>
             (iOS)
@@ -210,7 +210,7 @@ export function Surfaces({ semantic, isDark }: SurfacesProps) {
 
       {/* Vibrancy Levels */}
       <div>
-        <h3 style={{ marginBottom: 16, color: semantic.onSurface }}>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, color: semantic.onSurface }}>
           Vibrancy Levels
           <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: semantic.onSurfaceSecondary }}>
             (iOS)

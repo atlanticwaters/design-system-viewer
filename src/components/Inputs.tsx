@@ -38,7 +38,7 @@ function getLabelStyles(semantic: SemanticColors): CSSProperties {
 export function Inputs({ semantic }: InputsProps) {
   return (
     <section id="inputs" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Inputs
       </h2>
 

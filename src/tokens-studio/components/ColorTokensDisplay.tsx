@@ -155,6 +155,7 @@ function CategorySection({ category, isDarkMode }: CategorySectionProps) {
     fontSize: 18,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
+    textTransform: 'capitalize',
     marginBottom: 16,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     display: 'flex',
@@ -210,9 +211,9 @@ export function ColorTokensDisplay({ colors, isDarkMode }: ColorTokensDisplayPro
     fontSize: 24,
     fontWeight: 700,
     fontFamily: FONT_OPEN_SANS,
-    marginBottom: 24,
+    marginBottom: 8,
     color: isDarkMode ? '#fbfaf9' : '#252524',
-    borderBottom: `2px solid #f96302`,
+    borderBottom: '2px solid #f96302',
     paddingBottom: 8,
   };
 

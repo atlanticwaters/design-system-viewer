@@ -593,6 +593,7 @@ export function PlatformPassport({ semantic }: PlatformPassportProps) {
     <section id="passport" style={{ marginBottom: spacing[12] }}>
       <h2 style={{
         ...typography.h3,
+        fontFamily: "'Open Sans', sans-serif",
         color: semantic.onSurface,
         borderBottom: `2px solid ${semantic.primary}`,
         paddingBottom: spacing[2],

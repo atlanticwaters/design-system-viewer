@@ -131,7 +131,7 @@ export function States({ semantic, isDark }: StatesProps) {
 
   return (
     <section id="states" style={{ marginBottom: 48 }}>
-      <h2 style={{ marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
+      <h2 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 24, borderBottom: '2px solid #F96302', paddingBottom: 8, color: semantic.onSurface }}>
         Interactive States
       </h2>
 
@@ -153,7 +153,7 @@ export function States({ semantic, isDark }: StatesProps) {
 
       {/* State Layer Opacities */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>
           State Layer Opacities
           <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: semantic.onSurfaceSecondary }}>
             (Material 3)
@@ -191,7 +191,7 @@ export function States({ semantic, isDark }: StatesProps) {
 
       {/* State Layers by Color */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>State Layers by Role</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>State Layers by Role</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -259,7 +259,7 @@ export function States({ semantic, isDark }: StatesProps) {
 
       {/* Interactive Button Demo */}
       <div style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Interactive Button States</h3>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>Interactive Button States</h3>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -278,7 +278,7 @@ export function States({ semantic, isDark }: StatesProps) {
 
       {/* Elevation Tonal Overlay (Android Dark) */}
       <div>
-        <h3 style={{ marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>
+        <h3 style={{ fontFamily: "'Open Sans', sans-serif", marginBottom: 16, fontSize: 14, color: semantic.onSurface }}>
           Elevation Tonal Overlay
           <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: semantic.onSurfaceSecondary }}>
             (Android Dark Theme)

@@ -172,6 +172,7 @@ export function ElevationTokensDisplay({ effects, isDarkMode = false }: Elevatio
     fontSize: 18,
     fontWeight: 600,
     fontFamily: FONT_OPEN_SANS,
+    textTransform: 'capitalize',
     marginBottom: 16,
     marginTop: 24,
     color: isDarkMode ? '#fbfaf9' : '#252524',

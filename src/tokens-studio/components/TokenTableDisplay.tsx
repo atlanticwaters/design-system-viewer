@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ParsedTokens, TokenCategory, ResolvedToken } from '../types/tokens';
+import { FONT_OPEN_SANS } from '../utils/fonts';
 
 interface TokenTableDisplayProps {
   parsedTokens: ParsedTokens;
@@ -265,7 +266,8 @@ export function TokenTableDisplay({ parsedTokens, isDarkMode }: TokenTableDispla
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 24,
     fontWeight: 700,
-    marginBottom: 16,
+    fontFamily: FONT_OPEN_SANS,
+    marginBottom: 8,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     borderBottom: '2px solid #f96302',
     paddingBottom: 8,

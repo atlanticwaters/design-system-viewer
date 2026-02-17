@@ -218,6 +218,7 @@ function SectionHeader({
     <h3
       style={{
         ...typography.h6,
+        fontFamily: "'Open Sans', sans-serif",
         color: semantic.onSurface,
         marginBottom: spacing[4],
       }}
@@ -263,6 +264,7 @@ export function Pairings({ semantic }: PairingsProps) {
       <h2
         style={{
           ...typography.h4,
+          fontFamily: "'Open Sans', sans-serif",
           color: semantic.primary,
           borderBottom: `2px solid ${semantic.primary}`,
           paddingBottom: spacing[2],

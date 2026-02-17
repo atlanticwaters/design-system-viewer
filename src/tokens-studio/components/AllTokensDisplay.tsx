@@ -258,6 +258,8 @@ function ColorPaletteSection({
         style={{
           fontSize: 16,
           fontWeight: 600,
+          fontFamily: FONT_OPEN_SANS,
+          textTransform: 'capitalize',
           marginBottom: 16,
           color: isDarkMode ? '#fbfaf9' : '#252524',
         }}
@@ -417,7 +419,8 @@ export function AllTokensDisplay({ parsedTokens, isDarkMode }: AllTokensDisplayP
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 24,
     fontWeight: 700,
-    marginBottom: 24,
+    fontFamily: FONT_OPEN_SANS,
+    marginBottom: 8,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     borderBottom: '2px solid #f96302',
     paddingBottom: 8,
@@ -442,6 +445,8 @@ export function AllTokensDisplay({ parsedTokens, isDarkMode }: AllTokensDisplayP
   const subsectionTitleStyle: React.CSSProperties = {
     fontSize: 18,
     fontWeight: 600,
+    fontFamily: FONT_OPEN_SANS,
+    textTransform: 'capitalize',
     marginBottom: 16,
     color: isDarkMode ? '#fbfaf9' : '#252524',
     display: 'flex',

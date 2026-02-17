@@ -27,26 +27,26 @@ html {
 
 /*
  * Font Strategy:
- * - THD LgVar: Use for 16px and larger (NOT the condensed SmVar)
- * - Open Sans: Use for smaller than 16px
+ * - Open Sans: Default for all UI text (body, headings, labels)
+ * - THD LgVar: Reserved for hero/display typography samples only
  */
 
-/* Default body font - THD LgVar for 16px+ */
+/* Default body font - Open Sans */
 body {
-  font-family: 'THD LgVar', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headlines use THD LgVar */
-h1, h2, h3, h4, h5, h6, .text-display, .thd-display {
-  font-family: 'THD LgVar', 'Open Sans', sans-serif;
+/* Headlines use Open Sans */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Small text (under 16px) should use Open Sans */
-small, .text-xs, .text-sm {
-  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* THD display font - only for hero/display typography */
+.text-display, .thd-display {
+  font-family: 'THD LgVar', 'Open Sans', sans-serif;
 }
 
 /* Custom scrollbar */
