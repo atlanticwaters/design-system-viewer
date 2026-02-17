@@ -12,3 +12,4 @@ export { Fills } from './Fills';
 export { Outlines } from './Outlines';
 export { States } from './States';
 export { Pairings } from './Pairings';
+export { TokenCascade, PlatformPassport } from './visualizations';

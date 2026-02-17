@@ -14,6 +14,8 @@ import {
   Outlines,
   States,
   Pairings,
+  TokenCascade,
+  PlatformPassport,
 } from './components';
 import { semanticLight, semanticDark, colors } from './tokens/colors';
 import { typography } from './tokens/typography';
@@ -50,6 +52,8 @@ function App() {
     { id: 'navigation', label: 'Navigation' },
     { id: 'toggles', label: 'Toggles' },
     { id: 'alerts', label: 'Alerts' },
+    { id: 'cascade', label: 'Token Cascade' },
+    { id: 'passport', label: 'Platform Passport' },
   ];
 
   const scrollToSection = (id: string) => {
@@ -266,6 +270,9 @@ function App() {
         <Navigation semantic={semantic} />
         <Toggles semantic={semantic} />
         <Alerts semantic={semantic} />
+
+        <TokenCascade semantic={semantic} isDark={isDarkMode} />
+        <PlatformPassport semantic={semantic} isDark={isDarkMode} />
 
         {/* Footer */}
         <footer style={{
