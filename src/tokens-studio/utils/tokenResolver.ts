@@ -65,10 +65,21 @@ function findTokenPath(
   token = getTokenAtPath(tokens, coreColorsColorPath);
   if (token) return coreColorsColorPath;
 
-  // Try with core/neutrals.color prefix (neutral colors)
-  const coreNeutralsPath = `core/neutrals.color.${referencePath}`;
+  // Try with core/neutrals prefix (neutral colors like {color.neutrals.white})
+  // referencePath = "color.neutrals.white" → "core/neutrals.color.neutrals.white"
+  const coreNeutralsPath = `core/neutrals.${referencePath}`;
   token = getTokenAtPath(tokens, coreNeutralsPath);
   if (token) return coreNeutralsPath;
+
+  // Try with core/position prefix (shadow offset positions)
+  const corePositionPath = `core/position.${referencePath}`;
+  token = getTokenAtPath(tokens, corePositionPath);
+  if (token) return corePositionPath;
+
+  // Try with core/position.position prefix (nested position structure)
+  const corePositionNestedPath = `core/position.position.${referencePath}`;
+  token = getTokenAtPath(tokens, corePositionNestedPath);
+  if (token) return corePositionNestedPath;
 
   // Try with core/spacing prefix (Tokens Studio Sandbox format)
   const coreSpacingPath = `core/spacing.${referencePath}`;

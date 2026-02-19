@@ -1,0 +1,68 @@
+{
+	"Checkbox": {
+		"icon": {
+			"Default": {
+				"$type": "color",
+				"$value": "{system.icon.on-container-color.inverse}"
+			}
+		},
+		"size": {
+			"Default": {
+				"$type": "number",
+				"$value": "{system.dimension.size.xs}"
+			}
+		},
+		"border": {
+			"stroke": {
+				"Default": {
+					"$type": "color",
+					"$value": "{system.icon.on-container-color.inverse}"
+				}
+			},
+			"Default": {
+				"$type": "color",
+				"$value": "{component.background.selector-color.outline.pressed}"
+			}
+		},
+		"radius": {
+			"corner": {
+				"Default": {
+					"$type": "number",
+					"$value": "{system.border.radius.md}"
+				}
+			}
+		},
+		"spacing": {
+			"gap": {
+				"Default": {
+					"$type": "number",
+					"$value": "{system.dimension.gap.2xs}"
+				}
+			},
+			"padding": {
+				"Default": {
+					"$type": "number",
+					"$value": "{system.dimension.gap.4xs}"
+				}
+			}
+		},
+		"background": {
+			"fill": {
+				"Default": {
+					"$type": "color",
+					"$value": "{system.icon.on-container-color.inverse}"
+				}
+			},
+			"Default": {
+				"$type": "color",
+				"$value": "{component.background.selector-color.filled.selected}"
+			}
+		},
+		"border-width": {
+			"Default": {
+				"$type": "number",
+				"$value": "{system.border.width.sm}"
+			}
+		}
+	}
+}
